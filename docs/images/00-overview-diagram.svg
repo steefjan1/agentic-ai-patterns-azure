@@ -1,0 +1,251 @@
+<svg viewBox="0 0 1000 980" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="oa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#616161"/>
+    </marker>
+    <marker id="oad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0078D4"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="980" fill="#F7F9FB"/>
+
+  <text x="500" y="45" text-anchor="middle" font-size="34" font-weight="bold" fill="#0B2545">9 AGENTIC AI DESIGN PATTERNS</text>
+  <text x="500" y="75" text-anchor="middle" font-size="17" fill="#5C2D91">On Azure PaaS — one pattern, one deployable reference</text>
+  <text x="500" y="102" text-anchor="middle" font-size="12" fill="#616161">Reliable  ·  Scalable  ·  Observable  ·  Maintainable  ·  Outcome-driven</text>
+
+  <!-- Row 1 -->
+  <g transform="translate(30,150)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#107C10"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">1</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#107C10">TOOL USE</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="70" y1="123" x2="80" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="137" y1="123" x2="147" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="204" y1="123" x2="214" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <rect x="15" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="42" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Request</text>
+    <rect x="82" y="110" width="55" height="26" rx="6" fill="#005A9E"/>
+    <text x="109" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Agent</text>
+    <rect x="149" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="176" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Tool</text>
+    <rect x="216" y="110" width="55" height="26" rx="6" fill="#50E6FF"/>
+    <text x="243" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#1B1B1B">Result</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#107C10">Best for: </tspan>single-step tasks, lookups, API calls</text>
+  </g>
+
+  <g transform="translate(350,150)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#CA5010"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">2</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#CA5010">REACT</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="165" y1="86" x2="215" y2="148" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="195" y1="174" x2="105" y2="174" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="85" y1="148" x2="135" y2="86" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="187" y1="70" x2="223" y2="67" stroke="#0078D4" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#oad)"/>
+
+    <rect x="115" y="60" width="70" height="26" rx="6" fill="#005A9E"/>
+    <text x="150" y="73" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Think</text>
+    <rect x="195" y="150" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="225" y="162" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Act</text>
+    <rect x="25" y="150" width="65" height="24" rx="6" fill="#0078D4"/>
+    <text x="57" y="162" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Observe</text>
+    <rect x="225" y="55" width="55" height="24" rx="6" fill="#50E6FF"/>
+    <text x="252" y="67" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#1B1B1B">Answer</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#CA5010">Best for: </tspan>research, troubleshooting, exploration</text>
+  </g>
+
+  <g transform="translate(670,150)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#5C2D91"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">3</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#5C2D91">REFLECTION</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <path d="M 216 108 Q 145 65 82 108" fill="none" stroke="#5C2D91" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#oa)"/>
+    <line x1="70" y1="123" x2="80" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="137" y1="123" x2="147" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="204" y1="123" x2="214" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <rect x="15" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="42" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Draft</text>
+    <rect x="82" y="110" width="55" height="26" rx="6" fill="#005A9E"/>
+    <text x="109" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Reflect</text>
+    <rect x="149" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="176" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Revise</text>
+    <rect x="216" y="110" width="55" height="26" rx="6" fill="#50E6FF"/>
+    <text x="243" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1B1B1B">Final</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#5C2D91">Best for: </tspan>quality-critical output, code, compliance</text>
+  </g>
+
+  <!-- Row 2 -->
+  <g transform="translate(30,420)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#986F0B"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">4</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#986F0B">PLANNING</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="70" y1="123" x2="80" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="137" y1="123" x2="147" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="204" y1="123" x2="214" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <rect x="15" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="42" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Goal</text>
+    <rect x="82" y="110" width="55" height="26" rx="6" fill="#005A9E"/>
+    <text x="109" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Plan</text>
+    <rect x="149" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="176" y="123" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Execute</text>
+    <rect x="216" y="110" width="55" height="26" rx="6" fill="#50E6FF"/>
+    <text x="243" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1B1B1B">Complete</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#986F0B">Best for: </tspan>complex tasks, SOP automation</text>
+  </g>
+
+  <g transform="translate(350,420)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#008272"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">5</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#008272">ORCHESTRATOR</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="130" y1="86" x2="55" y2="113" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="150" y1="86" x2="150" y2="113" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="170" y1="86" x2="245" y2="113" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="50" y1="137" x2="115" y2="163" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="150" y1="137" x2="150" y2="163" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="245" y1="137" x2="185" y2="163" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+
+    <rect x="105" y="60" width="90" height="26" rx="6" fill="#005A9E"/>
+    <text x="150" y="73" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Orchestrator</text>
+    <rect x="20" y="113" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="50" y="125" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent 1</text>
+    <rect x="120" y="113" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="150" y="125" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent 2</text>
+    <rect x="215" y="113" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="245" y="125" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent 3</text>
+    <rect x="70" y="163" width="160" height="26" rx="6" fill="#50E6FF"/>
+    <text x="150" y="176" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#1B1B1B">Aggregate &amp; Respond</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#008272">Best for: </tspan>enterprise platforms, governance</text>
+  </g>
+
+  <g transform="translate(670,420)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#E3008C"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">6</text>
+    <text x="44" y="27" font-size="14" font-weight="bold" fill="#E3008C">SEQUENTIAL CHAIN</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="70" y1="123" x2="80" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="137" y1="123" x2="147" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="204" y1="123" x2="214" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <rect x="15" y="110" width="55" height="26" rx="6" fill="#50E6FF"/>
+    <text x="42" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1B1B1B">Input</text>
+    <rect x="82" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="109" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent 1</text>
+    <rect x="149" y="110" width="55" height="26" rx="6" fill="#0078D4"/>
+    <text x="176" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent 2</text>
+    <rect x="216" y="110" width="55" height="26" rx="6" fill="#005A9E"/>
+    <text x="243" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Output</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#E3008C">Best for: </tspan>pipelines, ETL, content generation</text>
+  </g>
+
+  <!-- Row 3 -->
+  <g transform="translate(30,690)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#4F52B2"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">7</text>
+    <text x="44" y="27" font-size="13" font-weight="bold" fill="#4F52B2">PARALLEL FAN-OUT/IN</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="60" y1="123" x2="80" y2="80" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="60" y1="123" x2="80" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="60" y1="123" x2="80" y2="166" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="140" y1="80" x2="160" y2="115" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="140" y1="123" x2="160" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="140" y1="166" x2="160" y2="131" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="205" y1="123" x2="225" y2="123" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+
+    <rect x="10" y="110" width="50" height="26" rx="6" fill="#50E6FF"/>
+    <text x="35" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1B1B1B">Input</text>
+    <rect x="80" y="68" width="60" height="22" rx="6" fill="#0078D4"/>
+    <text x="110" y="79" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Task 1</text>
+    <rect x="80" y="111" width="60" height="22" rx="6" fill="#0078D4"/>
+    <text x="110" y="122" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Task 2</text>
+    <rect x="80" y="154" width="60" height="22" rx="6" fill="#0078D4"/>
+    <text x="110" y="165" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Task 3</text>
+    <rect x="160" y="110" width="45" height="26" rx="6" fill="#005A9E"/>
+    <text x="182" y="123" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#fff">&#931;</text>
+    <rect x="225" y="110" width="55" height="26" rx="6" fill="#50E6FF"/>
+    <text x="252" y="123" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1B1B1B">Output</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#4F52B2">Best for: </tspan>independent tasks at scale</text>
+  </g>
+
+  <g transform="translate(350,690)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#8E562E"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">8</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#8E562E">HIERARCHICAL</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="130" y1="86" x2="55" y2="113" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="150" y1="86" x2="150" y2="113" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="170" y1="86" x2="245" y2="113" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="50" y1="137" x2="115" y2="163" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="150" y1="137" x2="150" y2="163" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+    <line x1="245" y1="137" x2="185" y2="163" stroke="#616161" stroke-width="1.5" marker-end="url(#oa)"/>
+
+    <rect x="105" y="60" width="90" height="26" rx="6" fill="#005A9E"/>
+    <text x="150" y="73" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#fff">Manager</text>
+    <rect x="20" y="113" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="50" y="125" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Finance</text>
+    <rect x="120" y="113" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="150" y="125" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Ops</text>
+    <rect x="215" y="113" width="60" height="24" rx="6" fill="#0078D4"/>
+    <text x="245" y="125" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">IT</text>
+    <rect x="55" y="163" width="190" height="26" rx="6" fill="#50E6FF"/>
+    <text x="150" y="176" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#1B1B1B">Consolidate &amp; Respond</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#8E562E">Best for: </tspan>large orgs, multi-domain systems</text>
+  </g>
+
+  <g transform="translate(670,690)">
+    <rect width="300" height="250" rx="12" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="1.5"/>
+    <circle cx="20" cy="22" r="14" fill="#323130"/>
+    <text x="20" y="27" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">9</text>
+    <text x="44" y="27" font-size="15" font-weight="bold" fill="#323130">P2P MESH</text>
+    <line x1="15" y1="45" x2="285" y2="45" stroke="#E5E5E5"/>
+
+    <line x1="150" y1="79" x2="150" y2="103" stroke="#616161" stroke-width="1.5" marker-start="url(#oa)" marker-end="url(#oa)"/>
+    <line x1="120" y1="131" x2="80" y2="155" stroke="#616161" stroke-width="1.5" marker-start="url(#oa)" marker-end="url(#oa)"/>
+    <line x1="180" y1="131" x2="220" y2="155" stroke="#616161" stroke-width="1.5" marker-start="url(#oa)" marker-end="url(#oa)"/>
+
+    <rect x="115" y="105" width="70" height="26" rx="6" fill="#005A9E"/>
+    <text x="150" y="118" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Event Grid</text>
+    <rect x="115" y="55" width="70" height="24" rx="6" fill="#0078D4"/>
+    <text x="150" y="67" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent A</text>
+    <rect x="20" y="155" width="65" height="24" rx="6" fill="#0078D4"/>
+    <text x="52" y="167" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent B</text>
+    <rect x="215" y="155" width="65" height="24" rx="6" fill="#0078D4"/>
+    <text x="247" y="167" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="#fff">Agent C</text>
+
+    <line x1="15" y1="205" x2="285" y2="205" stroke="#E5E5E5"/>
+    <text x="15" y="225" font-size="11" fill="#444"><tspan font-weight="bold" fill="#323130">Best for: </tspan>decentralized, resilient systems</text>
+  </g>
+</svg>

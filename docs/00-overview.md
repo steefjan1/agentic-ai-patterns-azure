@@ -13,6 +13,11 @@ and one pattern that coordinates multiple agents with *no* central point at all 
 
 ## The patterns at a glance
 
+<figure>
+  <img src="images/00-overview-diagram.svg" alt="Overview diagram of all 9 agentic AI design patterns, each shown as a small flow diagram mapped to an Azure PaaS reference implementation" title="9 Agentic AI Design Patterns on Azure — overview" width="900" />
+  <figcaption>All 9 patterns at a glance, each linked below to its own write-up and deployable Azure sample.</figcaption>
+</figure>
+
 | # | Pattern | Shape | Best for | Primary Azure services |
 |---|---|---|---|---|
 | 1 | [Tool Use](./01-tool-use.md) | One request → one tool → one answer | Single-step lookups, API calls, simple automation | Azure OpenAI, Azure Functions |
