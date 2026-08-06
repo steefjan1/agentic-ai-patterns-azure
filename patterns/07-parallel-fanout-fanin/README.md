@@ -78,6 +78,15 @@ curl -X POST http://localhost:7071/api/fanout/start \
   -d @data/sample-long-document.json
 ```
 
+```powershell
+$body = Get-Content .\data\sample-long-document.json -Raw
+$start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/fanout/start" -Body $body -ContentType "application/json"
+$start
+
+# Poll until the orchestration finishes
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
 ## Key design points
 
 - `context.CallActivityAsync` is invoked once per chunk **without** awaiting each call individually; the resulting `Task` objects are collected into a list and passed to `await Task.WhenAll(tasks)`. Durable Functions schedules all of them concurrently across available Function instances.

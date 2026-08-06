@@ -81,6 +81,11 @@ curl -X POST http://localhost:7071/api/orchestrate \
   -d '{"message": "How many enterprise accounts churned last quarter, and what does our documentation say we should do about churn risk?"}'
 ```
 
+```powershell
+$body = @{ message = "How many enterprise accounts churned last quarter, and what does our documentation say we should do about churn risk?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/orchestrate" -Body $body -ContentType "application/json"
+```
+
 This single request touches both the Data specialist (churn count from Azure SQL) and the Research specialist (churn-risk guidance from Azure AI Search) — the orchestrator agent decides to call both and merges the results itself.
 
 ## Key design points

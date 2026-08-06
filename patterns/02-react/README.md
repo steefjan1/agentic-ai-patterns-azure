@@ -77,6 +77,15 @@ curl -X POST http://localhost:7071/api/react/start \
   -d '{"goal": "What Azure service should I use for the Reflection pattern and why?"}'
 ```
 
+```powershell
+$body = @{ goal = "What Azure service should I use for the Reflection pattern and why?" } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/react/start" -Body $body -ContentType "application/json"
+$start
+
+# Poll until the orchestration finishes
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
 The response includes a `statusQueryGetUri` you can poll for the final answer plus the full thought/action/observation transcript.
 
 ## Key design points

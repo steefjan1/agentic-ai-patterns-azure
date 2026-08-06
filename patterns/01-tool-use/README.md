@@ -70,6 +70,16 @@ curl -X POST http://localhost:7071/api/agent \
   -H "Content-Type: application/json" \
   -d '{"message": "What is the status of order 1042?"}'
 ```
+```bash
+ curl -X POST http://localhost:7071/api/agent \
+   -H "Content-Type: application/json" \
+   -d '{"message": "What is the status of order 1042?"}'
+```
+ 
+``powershell
+$body = @{ message = "What is the status of order 1042?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/agent" -Body $body -ContentType "application/json"
+```
 
 ## Key design point
 

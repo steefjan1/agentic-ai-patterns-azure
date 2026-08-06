@@ -76,6 +76,15 @@ curl -X POST http://localhost:7071/api/plan/start \
   -d '{"goal": "Onboard a new enterprise customer: summarize their contract, notify the account team, and call the provisioning API."}'
 ```
 
+```powershell
+$body = @{ goal = "Onboard a new enterprise customer: summarize their contract, notify the account team, and call the provisioning API." } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/plan/start" -Body $body -ContentType "application/json"
+$start
+
+# Poll until the orchestration finishes
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
 ## Key design points
 
 - The plan is **data, not code**: the model returns a JSON array of typed steps from a fixed vocabulary (`summarize`, `notify`, `call_api`), and the orchestrator dispatches each to the matching activity function. The model can't invent arbitrary actions.

@@ -72,6 +72,18 @@ curl -X POST http://localhost:7071/api/reflect/start \
   -d '{"prompt": "Write a function that validates an IBAN number.", "rubric": "Code must be correct, handle edge cases, and include a docstring."}'
 ```
 
+```powershell
+$body = @{
+    prompt = "Write a function that validates an IBAN number."
+    rubric = "Code must be correct, handle edge cases, and include a docstring."
+} | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/reflect/start" -Body $body -ContentType "application/json"
+$start
+
+# Poll until the orchestration finishes
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
 ## Key design points
 
 - Critique runs on a cheaper model deployment (`gpt-4.1-mini`) — critique is a narrower task than generation and doesn't need the largest model, which meaningfully cuts cost for a pattern that doubles model calls.

@@ -81,6 +81,11 @@ curl -X POST http://localhost:7071/api/manager/start \
   -d '{"message": "Can we afford to give the support team new laptops this quarter, and is IT ready to provision them?"}'
 ```
 
+```powershell
+$body = @{ message = "Can we afford to give the support team new laptops this quarter, and is IT ready to provision them?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/manager/start" -Body $body -ContentType "application/json"
+```
+
 This touches all three domains: Finance (budget), Ops (headcount/quarter context), and IT (provisioning capacity) — the manager decides which are relevant, dispatches to each, and reconciles.
 
 ## Key design points

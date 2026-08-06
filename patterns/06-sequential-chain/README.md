@@ -72,6 +72,15 @@ az storage blob upload \
   --auth-mode login
 ```
 
+```powershell
+az storage blob upload `
+  --account-name <storage-account-name> `
+  --container-name intake `
+  --name sample-request.txt `
+  --file ./data/sample-request.txt `
+  --auth-mode login
+```
+
 ## Key design points
 
 - Each stage is a distinct workflow action with its own retry policy (3 attempts, exponential backoff) — a transient failure at stage two doesn't require re-running stage one.
