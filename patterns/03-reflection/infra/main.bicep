@@ -8,9 +8,9 @@ param environmentName string
 param location string = resourceGroup().location
 
 param primaryModelName string = 'gpt-4.1'
-param primaryModelVersion string = '2024-08-06'
+param primaryModelVersion string = '2025-04-14'
 param critiqueModelName string = 'gpt-4.1-mini'
-param critiqueModelVersion string = '2024-07-18'
+param critiqueModelVersion string = '2025-04-14'
 
 var resourceToken = toLower(uniqueString(subscription().id, resourceGroup().id, environmentName))
 var tags = { 'azd-env-name': environmentName, pattern: 'reflection' }

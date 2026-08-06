@@ -8,7 +8,7 @@ param environmentName string
 param location string = resourceGroup().location
 
 param chatModelName string = 'gpt-4.1'
-param chatModelVersion string = '2024-08-06'
+param chatModelVersion string = '2025-04-14'
 
 @secure()
 param sqlAdminPassword string = newGuid()

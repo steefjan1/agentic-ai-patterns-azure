@@ -11,7 +11,7 @@ param location string = resourceGroup().location
 param chatModelName string = 'gpt-4.1'
 
 @description('GPT model version')
-param chatModelVersion string = '2024-08-06'
+param chatModelVersion string = '2025-04-14'
 
 var resourceToken = toLower(uniqueString(subscription().id, resourceGroup().id, environmentName))
 var tags = {
