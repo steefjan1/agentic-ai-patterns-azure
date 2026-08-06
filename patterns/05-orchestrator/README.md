@@ -65,7 +65,7 @@ azd auth login
 azd up
 ```
 
-Provisions an Azure AI Foundry project + `gpt-4o` model deployment, Azure AI Search (Basic), Azure SQL Database (Basic, sample schema), a Function App hosting all three specialist tools plus the orchestrator entry point, and Application Insights.
+Provisions an Azure AI Foundry project + `gpt-4.1` model deployment, Azure AI Search (Basic), Azure SQL Database (Basic, sample schema), a Function App hosting all three specialist tools plus the orchestrator entry point, and Application Insights.
 
 ## Run locally
 

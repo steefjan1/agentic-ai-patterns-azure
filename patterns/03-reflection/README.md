@@ -8,8 +8,8 @@ The agent drafts an answer, critiques its own draft against a rubric, and revise
 
 | Component | Azure Service |
 |---|---|
-| Drafting | Azure OpenAI Service — primary deployment (`gpt-4o`) |
-| Critique | Azure OpenAI Service — lighter deployment (`gpt-4o-mini`) |
+| Drafting | Azure OpenAI Service — primary deployment (`gpt-4.1`) |
+| Critique | Azure OpenAI Service — lighter deployment (`gpt-4.1-mini`) |
 | Revision | Azure OpenAI Service — primary deployment |
 | Orchestration | Durable Functions (draft → reflect → revise, optional retry loop) |
 | Audit trail | Azure Blob Storage (every draft/critique/revision triple, per run ID) |
@@ -24,7 +24,7 @@ Client ──HTTP──▶ reflect_start
      ┌───────────────┼────────────────┐
      ▼                ▼                ▼
  DraftAnswer      ReflectOnDraft   ReviseAnswer   (loop up to 2x if critique fails)
- (gpt-4o)         (gpt-4o-mini)    (gpt-4o)
+ (gpt-4.1)         (gpt-4.1-mini)    (gpt-4.1)
      │                │                │
      └──────── every stage persisted to Blob Storage ────────┘
 ```
@@ -56,7 +56,7 @@ azd auth login
 azd up
 ```
 
-Provisions Azure OpenAI with `gpt-4o` and `gpt-4o-mini` deployments, a Durable Functions Function App, a storage account (Durable Task Hub + `reflection-audit` container), and Application Insights.
+Provisions Azure OpenAI with `gpt-4.1` and `gpt-4.1-mini` deployments, a Durable Functions Function App, a storage account (Durable Task Hub + `reflection-audit` container), and Application Insights.
 
 ## Run locally
 
@@ -74,7 +74,7 @@ curl -X POST http://localhost:7071/api/reflect/start \
 
 ## Key design points
 
-- Critique runs on a cheaper model deployment (`gpt-4o-mini`) — critique is a narrower task than generation and doesn't need the largest model, which meaningfully cuts cost for a pattern that doubles model calls.
+- Critique runs on a cheaper model deployment (`gpt-4.1-mini`) — critique is a narrower task than generation and doesn't need the largest model, which meaningfully cuts cost for a pattern that doubles model calls.
 - The orchestrator loops back to `ReflectOnDraft` up to `MaxRevisions` (default 2) times if the critique still fails the rubric, then returns the best available draft flagged `ReachedRevisionLimit: true` rather than looping forever.
 - Every stage's input/output is written to Blob Storage under `reflection-audit/{runId}/`, which is what makes this pattern usable for compliance-sensitive content — the full self-review trail is inspectable, not just the final answer.
 

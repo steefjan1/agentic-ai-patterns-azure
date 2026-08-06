@@ -57,7 +57,7 @@ az deployment group create -g rg-sequential-chain -f infra/main.bicep -p environ
 ./scripts/deploy.sh rg-sequential-chain
 ```
 
-This provisions Azure OpenAI (`gpt-4o` deployment), a Logic Apps Standard app, a storage account with `intake`/`output` containers, a Service Bus namespace and queue, and Application Insights.
+This provisions Azure OpenAI (`gpt-4.1` deployment), a Logic Apps Standard app, a storage account with `intake`/`output` containers, a Service Bus namespace and queue, and Application Insights.
 
 ## Try it
 

@@ -12,7 +12,7 @@ Best for complex tasks, project execution, SOP automation, and long workflows.
 
 | Component | Azure Service | Role |
 |---|---|---|
-| Plan generation | Azure OpenAI Service (GPT-4o) | Decomposes the goal into an ordered list of steps as structured output |
+| Plan generation | Azure OpenAI Service (gpt-4.1) | Decomposes the goal into an ordered list of steps as structured output |
 | Plan execution | Durable Functions (orchestrator + activity functions) | Executes each step, tracks state, retries failures, marks completion |
 | Step registry | Azure Functions (activity functions per step type) | Concrete implementations for each kind of step the planner can emit (e.g. "call API", "summarize", "notify") |
 | State/progress | Durable Functions entity or Azure Table Storage | Tracks per-step status (pending/executing/complete/failed) for visibility |

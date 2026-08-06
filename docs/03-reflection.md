@@ -12,13 +12,13 @@ Best for quality-critical outputs, code, compliance, and accuracy improvement.
 
 | Component | Azure Service | Role |
 |---|---|---|
-| Drafting | Azure OpenAI Service (GPT-4o) | Produces the initial answer |
-| Critique | Azure OpenAI Service (same or a second, cheaper deployment e.g. GPT-4o-mini) | Reviews the draft against a rubric and returns structured issues |
+| Drafting | Azure OpenAI Service (gpt-4.1) | Produces the initial answer |
+| Critique | Azure OpenAI Service (same or a second, cheaper deployment e.g. gpt-4.1-mini) | Reviews the draft against a rubric and returns structured issues |
 | Revision | Azure OpenAI Service | Produces the final answer conditioned on the critique |
 | Orchestration | Durable Functions | Chains draft → critique → revise as a durable, replay-safe sequence, with an optional loop if the critique still fails the rubric |
 | Audit trail | Azure Blob Storage | Stores every draft/critique/revision triple for compliance review |
 
-Using a cheaper model deployment for the critique step (GPT-4o-mini rather than GPT-4o) is a deliberate cost optimization — critique is a narrower task than generation and doesn't need the largest model.
+Using a cheaper model deployment for the critique step (gpt-4.1-mini rather than gpt-4.1) is a deliberate cost optimization — critique is a narrower task than generation and doesn't need the largest model.
 
 ## Implementation walkthrough
 

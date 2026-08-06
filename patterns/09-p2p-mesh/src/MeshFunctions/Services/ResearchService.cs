@@ -9,7 +9,7 @@ public class ResearchService
 
     public ResearchService(AzureOpenAIClient client)
     {
-        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4o";
+        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4.1";
         _chatClient = client.GetChatClient(deployment);
     }
 

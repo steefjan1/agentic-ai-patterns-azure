@@ -8,7 +8,7 @@ param environmentName string
 param location string = resourceGroup().location
 
 @description('GPT model deployment name')
-param chatModelName string = 'gpt-4o'
+param chatModelName string = 'gpt-4.1'
 
 @description('GPT model version')
 param chatModelVersion string = '2024-08-06'

@@ -12,7 +12,7 @@ This is best for exploration, research, and dynamic environments where the agent
 
 | Component | Azure Service | Role |
 |---|---|---|
-| Reasoning | Azure OpenAI Service (GPT-4o) | Produces the "thought" and decides the next action at each step |
+| Reasoning | Azure OpenAI Service (gpt-4.1) | Produces the "thought" and decides the next action at each step |
 | Knowledge grounding | Azure AI Search | Gives the agent something real to observe — vector + hybrid search over a knowledge base |
 | Loop host | Azure Functions (Durable Functions, orchestrator function) | Runs the think-act-observe loop, persists state between steps, enforces a max-iteration budget |
 | Tools | Azure Functions (HTTP-triggered activity functions) | The concrete actions the agent can take (search, calculate, call an API) |

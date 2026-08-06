@@ -17,7 +17,7 @@ param tags object = {}
 @description('Model deployments to create on this account')
 param deployments array = [
   {
-    name: 'gpt-4o'
+    name: 'gpt-4.1'
     format: 'OpenAI'
     version: '2024-08-06'
     skuName: 'Standard'
@@ -25,7 +25,7 @@ param deployments array = [
   }
 ]
 
-resource openAi 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+resource openAi 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: 'aoai-${resourceToken}'
   location: location
   tags: tags
@@ -40,7 +40,7 @@ resource openAi 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
 // Deployments must be created one at a time -- the service rejects concurrent
 // deployment creation against the same account.
 @batchSize(1)
-resource modelDeployments 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for d in deployments: {
+resource modelDeployments 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = [for d in deployments: {
   parent: openAi
   name: d.name
   sku: {

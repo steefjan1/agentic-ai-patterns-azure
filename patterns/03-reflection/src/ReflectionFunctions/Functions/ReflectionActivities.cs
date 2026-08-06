@@ -21,8 +21,8 @@ public class ReflectionActivities
 
     public ReflectionActivities(AzureOpenAIClient client, BlobServiceClient blobService)
     {
-        var primary = Environment.GetEnvironmentVariable("AZURE_OPENAI_PRIMARY_DEPLOYMENT") ?? "gpt-4o";
-        var critique = Environment.GetEnvironmentVariable("AZURE_OPENAI_CRITIQUE_DEPLOYMENT") ?? "gpt-4o-mini";
+        var primary = Environment.GetEnvironmentVariable("AZURE_OPENAI_PRIMARY_DEPLOYMENT") ?? "gpt-4.1";
+        var critique = Environment.GetEnvironmentVariable("AZURE_OPENAI_CRITIQUE_DEPLOYMENT") ?? "gpt-4.1-mini";
         _primaryClient = client.GetChatClient(primary);
         _critiqueClient = client.GetChatClient(critique);
         _blobService = blobService;

@@ -8,7 +8,7 @@ The simplest agentic pattern: one Azure OpenAI call decides which tool to invoke
 
 | Component | Azure Service |
 |---|---|
-| Reasoning + function-calling | Azure OpenAI Service (GPT-4o deployment) |
+| Reasoning + function-calling | Azure OpenAI Service (gpt-4.1 deployment) |
 | Agent entry point + tool execution | Azure Functions (.NET 8 Isolated Worker, HTTP triggers) |
 | Secrets | Azure Key Vault |
 | Telemetry | Application Insights |
@@ -54,7 +54,7 @@ azd auth login
 azd up
 ```
 
-This provisions Azure OpenAI (with a `gpt-4o` deployment), the Function App, storage, Key Vault, and Application Insights, then builds and deploys `src/ToolUseFunctions`.
+This provisions Azure OpenAI (with a `gpt-4.1` deployment), the Function App, storage, Key Vault, and Application Insights, then builds and deploys `src/ToolUseFunctions`.
 
 ## Run locally
 

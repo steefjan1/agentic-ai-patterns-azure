@@ -14,7 +14,7 @@ The agent's only job is to pick the right tool and shape its arguments correctly
 
 | Component | Azure Service | Role |
 |---|---|---|
-| Reasoning | Azure OpenAI Service (GPT-4o) | Decides which tool to call and with what arguments, using native function calling |
+| Reasoning | Azure OpenAI Service (gpt-4.1) | Decides which tool to call and with what arguments, using native function calling |
 | Tool execution | Azure Functions (HTTP trigger) | Hosts the actual tool implementations (lookups, calculations, external API calls) |
 | Secrets | Azure Key Vault | Stores the Azure OpenAI key and any downstream API credentials |
 | Observability | Application Insights | Traces every tool call and model round-trip |
@@ -30,7 +30,7 @@ The important design decision is keeping tool execution *out* of the model's con
 
 ## Deploying it
 
-The companion repo ships as an `azd` (Azure Developer CLI) project. `azd up` provisions the Azure OpenAI resource with a GPT-4o deployment, the Function App, storage account, Key Vault, and Application Insights via Bicep, then deploys the C# Isolated Worker function code.
+The companion repo ships as an `azd` (Azure Developer CLI) project. `azd up` provisions the Azure OpenAI resource with a gpt-4.1 deployment, the Function App, storage account, Key Vault, and Application Insights via Bicep, then deploys the C# Isolated Worker function code.
 
 ```bash
 azd auth login

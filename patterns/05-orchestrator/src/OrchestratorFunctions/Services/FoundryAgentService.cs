@@ -39,7 +39,7 @@ public class FoundryAgentService
     public async Task<(string Answer, List<string> ToolsInvoked)> RunAsync(string userMessage)
     {
         var agents = _projectClient.GetPersistentAgentsClient();
-        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4o";
+        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4.1";
 
         _agentId ??= (await agents.CreateAgentAsync(
             model: deployment,

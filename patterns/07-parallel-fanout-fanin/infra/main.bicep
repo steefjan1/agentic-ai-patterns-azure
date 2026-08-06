@@ -7,7 +7,7 @@ param environmentName string
 @description('Azure region for all resources')
 param location string = resourceGroup().location
 
-param chatModelName string = 'gpt-4o'
+param chatModelName string = 'gpt-4.1'
 param chatModelVersion string = '2024-08-06'
 
 var resourceToken = toLower(uniqueString(subscription().id, resourceGroup().id, environmentName))

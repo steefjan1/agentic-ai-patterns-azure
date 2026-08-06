@@ -62,7 +62,7 @@ azd auth login
 azd up
 ```
 
-Provisions Azure OpenAI (`gpt-4o`), a Durable Functions Function App on an Elastic Premium plan (for reliable concurrent scale-out), storage for the Durable Task Hub and branch audit trail, and Application Insights.
+Provisions Azure OpenAI (`gpt-4.1`), a Durable Functions Function App on an Elastic Premium plan (for reliable concurrent scale-out), storage for the Durable Task Hub and branch audit trail, and Application Insights.
 
 ## Run locally
 

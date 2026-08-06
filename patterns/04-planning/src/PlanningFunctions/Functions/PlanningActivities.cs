@@ -20,7 +20,7 @@ public class PlanningActivities
 
     public PlanningActivities(AzureOpenAIClient client, TableServiceClient tableService, IHttpClientFactory httpClientFactory)
     {
-        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4o";
+        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4.1";
         _chatClient = client.GetChatClient(deployment);
         _tableService = tableService;
         _httpClientFactory = httpClientFactory;

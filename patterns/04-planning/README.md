@@ -8,7 +8,7 @@ The agent decomposes a goal into a typed, ordered plan up front, then executes e
 
 | Component | Azure Service |
 |---|---|
-| Plan generation | Azure OpenAI Service (GPT-4o), structured JSON output |
+| Plan generation | Azure OpenAI Service (gpt-4.1), structured JSON output |
 | Plan execution | Durable Functions (orchestrator + activity functions), automatic per-step retry |
 | Step registry | Azure Functions activity functions, one per step type (`summarize`, `notify`, `call_api`) |
 | Progress tracking | Azure Table Storage — one row per step, updated live as execution proceeds |

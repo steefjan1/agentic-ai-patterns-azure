@@ -29,7 +29,7 @@ public class AgentService
 
     public AgentService(AzureOpenAIClient client, OrderLookupService orderLookup)
     {
-        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4o";
+        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4.1";
         _chatClient = client.GetChatClient(deployment);
         _orderLookup = orderLookup;
     }

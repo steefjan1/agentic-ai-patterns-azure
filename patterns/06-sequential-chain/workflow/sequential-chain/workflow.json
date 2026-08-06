@@ -29,7 +29,7 @@
         "runAfter": { "Read_blob_content": ["Succeeded"] },
         "inputs": {
           "parameters": {
-            "deploymentId": "gpt-4o",
+            "deploymentId": "gpt-4.1",
             "messages": [
               { "role": "system", "content": "Extract intent, entities, and sentiment from the input as JSON." },
               { "role": "user", "content": "@body('Read_blob_content')" }
@@ -48,7 +48,7 @@
         "runAfter": { "Stage_1_Extract_fields": ["Succeeded"] },
         "inputs": {
           "parameters": {
-            "deploymentId": "gpt-4o",
+            "deploymentId": "gpt-4.1",
             "messages": [
               { "role": "system", "content": "Draft a customer response based on the extracted fields." },
               { "role": "user", "content": "@body('Stage_1_Extract_fields')" }
@@ -67,7 +67,7 @@
         "runAfter": { "Stage_2_Draft_response": ["Succeeded"] },
         "inputs": {
           "parameters": {
-            "deploymentId": "gpt-4o",
+            "deploymentId": "gpt-4.1",
             "messages": [
               { "role": "system", "content": "Check the draft for tone and factual consistency with the extracted fields. Return the final approved text." },
               { "role": "user", "content": "@body('Stage_2_Draft_response')" }

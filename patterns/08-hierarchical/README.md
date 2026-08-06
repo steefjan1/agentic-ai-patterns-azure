@@ -8,7 +8,7 @@ A manager agent decomposes a request across domain experts, dispatches asynchron
 
 | Component | Azure Service |
 |---|---|
-| Manager agent | Azure OpenAI Service (GPT-4o) — decomposes the request, dispatches sub-tasks, reconciles replies |
+| Manager agent | Azure OpenAI Service (gpt-4.1) — decomposes the request, dispatches sub-tasks, reconciles replies |
 | Inter-agent messaging | Azure Service Bus — a topic (`domain-tasks`) with one filtered subscription per domain, plus a session-enabled reply queue (`domain-replies`) |
 | Sub-agent: Finance | Azure Functions (Service Bus-triggered) + Azure Cosmos DB |
 | Sub-agent: Ops | Azure Functions (Service Bus-triggered) + Azure SQL Database |
@@ -18,7 +18,7 @@ A manager agent decomposes a request across domain experts, dispatches asynchron
 ```
 Client ──HTTP──▶ ManagerFunction
                        │
-             GPT-4o decomposes request
+             gpt-4.1 decomposes request
                        │
         publish to topic "domain-tasks" (filtered by Domain)
         ┌──────────────┼───────────────┐
@@ -29,7 +29,7 @@ Client ──HTTP──▶ ManagerFunction
         └──── replies land on session-scoped "domain-replies" queue ────┘
                        │
                        ▼
-        Manager reconciles (GPT-4o) → final answer
+        Manager reconciles (gpt-4.1) → final answer
 ```
 
 ## Project layout

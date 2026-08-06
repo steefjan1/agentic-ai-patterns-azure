@@ -8,7 +8,7 @@ The agent reasons about the next action, takes it, observes the result, and loop
 
 | Component | Azure Service |
 |---|---|
-| Reasoning (think + decide next action) | Azure OpenAI Service (GPT-4o) |
+| Reasoning (think + decide next action) | Azure OpenAI Service (gpt-4.1) |
 | Loop host, durable state | Durable Functions (.NET 8 Isolated Worker) |
 | Grounding ("observe") | Azure AI Search (hybrid search over a sample knowledge base) |
 | Tool execution | Azure Functions activity functions |
@@ -60,7 +60,7 @@ azd auth login
 azd up
 ```
 
-Provisions Azure OpenAI (`gpt-4o` deployment), Azure AI Search (Basic tier), a Durable Functions-enabled Function App, storage for the Durable Task Hub, and Application Insights. A post-provision hook indexes the sample documents in `data/sample-docs/` into the search index.
+Provisions Azure OpenAI (`gpt-4.1` deployment), Azure AI Search (Basic tier), a Durable Functions-enabled Function App, storage for the Durable Task Hub, and Application Insights. A post-provision hook indexes the sample documents in `data/sample-docs/` into the search index.
 
 ## Run locally
 
