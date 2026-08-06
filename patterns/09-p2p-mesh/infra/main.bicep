@@ -49,7 +49,16 @@ resource search 'Microsoft.Search/searchServices@2024-06-01-preview' = {
   location: location
   tags: tags
   sku: { name: 'basic' }
-  properties: { replicaCount: 1, partitionCount: 1, hostingMode: 'default' }
+  properties: {
+    replicaCount: 1
+    partitionCount: 1
+    hostingMode: 'default'
+    authOptions: {
+      aadOrApiKey: {
+        aadAuthFailureMode: 'http403'
+      }
+    }
+  }
 }
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-08-15' = {
@@ -134,6 +143,16 @@ resource searchRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-0
     principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '1407120a-92aa-4202-b7e9-c0e197c71c8f')
+  }
+}
+
+resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storage.id, functionApp.id, 'Storage Blob Data Owner')
+  scope: storage
+  properties: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')
   }
 }
 
