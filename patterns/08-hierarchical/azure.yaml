@@ -1,0 +1,8 @@
+name: agentic-pattern-hierarchical
+metadata:
+  template: agentic-pattern-hierarchical@0.1.0
+services:
+  api:
+    project: ./src/HierarchicalFunctions
+    language: csharp
+    host: function

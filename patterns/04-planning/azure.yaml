@@ -1,0 +1,8 @@
+name: agentic-pattern-planning
+metadata:
+  template: agentic-pattern-planning@0.1.0
+services:
+  api:
+    project: ./src/PlanningFunctions
+    language: csharp
+    host: function

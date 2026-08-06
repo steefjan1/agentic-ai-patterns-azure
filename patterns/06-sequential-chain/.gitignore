@@ -1,0 +1,3 @@
+.azure/
+*.zip
+local.settings.json

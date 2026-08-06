@@ -1,0 +1,23 @@
+{
+  "managedApiConnections": {},
+  "serviceProviderConnections": {
+    "openai": {
+      "displayName": "azure-openai",
+      "parameterValues": {
+        "endpoint": "@appsetting('AZURE_OPENAI_ENDPOINT')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/openai"
+      }
+    },
+    "servicebus": {
+      "displayName": "service-bus",
+      "parameterValues": {
+        "fullyQualifiedNamespace": "@appsetting('SERVICEBUS_NAMESPACE')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/serviceBus"
+      }
+    }
+  }
+}

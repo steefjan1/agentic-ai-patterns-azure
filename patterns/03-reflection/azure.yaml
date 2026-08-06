@@ -1,0 +1,8 @@
+name: agentic-pattern-reflection
+metadata:
+  template: agentic-pattern-reflection@0.1.0
+services:
+  api:
+    project: ./src/ReflectionFunctions
+    language: csharp
+    host: function

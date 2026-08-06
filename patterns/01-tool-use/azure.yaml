@@ -1,0 +1,8 @@
+name: agentic-pattern-tool-use
+metadata:
+  template: agentic-pattern-tool-use@0.1.0
+services:
+  api:
+    project: ./src/ToolUseFunctions
+    language: csharp
+    host: function

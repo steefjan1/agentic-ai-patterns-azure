@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AZURE_OPENAI_ENDPOINT": "https://<your-aoai-resource>.openai.azure.com/",
+    "AZURE_OPENAI_PRIMARY_DEPLOYMENT": "gpt-4o",
+    "AZURE_OPENAI_CRITIQUE_DEPLOYMENT": "gpt-4o-mini",
+    "AZURE_STORAGE_ACCOUNT": "<your-storage-account-name>",
+    "AUDIT_CONTAINER": "reflection-audit"
+  }
+}

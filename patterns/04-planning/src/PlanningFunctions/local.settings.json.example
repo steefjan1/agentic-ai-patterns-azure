@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AZURE_OPENAI_ENDPOINT": "https://<your-aoai-resource>.openai.azure.com/",
+    "AZURE_OPENAI_DEPLOYMENT": "gpt-4o",
+    "AZURE_STORAGE_ACCOUNT": "<your-storage-account-name>",
+    "PLAN_STATUS_TABLE": "planstatus",
+    "ESCALATION_WORKFLOW_URL": "https://<your-logic-app>.azurewebsites.net/api/notify-failure/triggers/When_a_HTTP_request_is_received/invoke"
+  }
+}

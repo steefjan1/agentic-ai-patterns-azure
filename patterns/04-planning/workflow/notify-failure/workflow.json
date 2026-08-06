@@ -1,0 +1,49 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "When_a_HTTP_request_is_received": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "runId": { "type": "string" },
+              "stepIndex": { "type": "integer" },
+              "description": { "type": "string" },
+              "error": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "Compose_notification": {
+        "type": "Compose",
+        "inputs": "Plan @{triggerBody()?['runId']} failed at step @{triggerBody()?['stepIndex']} ('@{triggerBody()?['description']}'): @{triggerBody()?['error']}"
+      },
+      "Send_to_ops_channel": {
+        "type": "Http",
+        "runAfter": { "Compose_notification": ["Succeeded"] },
+        "inputs": {
+          "method": "POST",
+          "uri": "@parameters('opsWebhookUrl')",
+          "body": { "text": "@outputs('Compose_notification')" }
+        }
+      },
+      "Response": {
+        "type": "Response",
+        "runAfter": { "Send_to_ops_channel": ["Succeeded", "Failed"] },
+        "inputs": { "statusCode": 200 }
+      }
+    }
+  },
+  "parameters": {
+    "opsWebhookUrl": {
+      "type": "string",
+      "value": "https://<your-teams-or-slack-webhook>"
+    }
+  }
+}

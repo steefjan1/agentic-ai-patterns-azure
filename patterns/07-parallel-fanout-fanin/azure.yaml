@@ -1,0 +1,8 @@
+name: agentic-pattern-parallel-fanout-fanin
+metadata:
+  template: agentic-pattern-parallel-fanout-fanin@0.1.0
+services:
+  api:
+    project: ./src/FanOutFunctions
+    language: csharp
+    host: function

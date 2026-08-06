@@ -1,0 +1,16 @@
+[
+  {
+    "id": "sample-event-1",
+    "eventType": "request.created",
+    "subject": "mesh/sample-correlation-id",
+    "eventTime": "2026-08-05T00:00:00Z",
+    "dataVersion": "1.0",
+    "data": {
+      "correlationId": "sample-correlation-id",
+      "topic": "What is Kubernetes and how does it relate to Azure Container Apps?",
+      "research": null,
+      "factCheck": null,
+      "finalOutput": null
+    }
+  }
+]

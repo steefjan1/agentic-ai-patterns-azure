@@ -1,0 +1,8 @@
+name: agentic-pattern-p2p-mesh
+metadata:
+  template: agentic-pattern-p2p-mesh@0.1.0
+services:
+  api:
+    project: ./src/MeshFunctions
+    language: csharp
+    host: function

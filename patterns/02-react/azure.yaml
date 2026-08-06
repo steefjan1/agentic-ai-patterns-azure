@@ -1,0 +1,8 @@
+name: agentic-pattern-react
+metadata:
+  template: agentic-pattern-react@0.1.0
+services:
+  api:
+    project: ./src/ReactFunctions
+    language: csharp
+    host: function

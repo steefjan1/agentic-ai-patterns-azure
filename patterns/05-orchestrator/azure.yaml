@@ -1,0 +1,8 @@
+name: agentic-pattern-orchestrator
+metadata:
+  template: agentic-pattern-orchestrator@0.1.0
+services:
+  api:
+    project: ./src/OrchestratorFunctions
+    language: csharp
+    host: function

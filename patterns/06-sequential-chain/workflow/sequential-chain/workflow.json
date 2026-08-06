@@ -1,0 +1,113 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "When_a_blob_is_added": {
+        "type": "ApiConnection",
+        "recurrence": { "frequency": "Minute", "interval": 1 },
+        "inputs": {
+          "host": { "connection": { "referenceName": "azureblob" } },
+          "method": "get",
+          "path": "/datasets/default/triggers/batch/onupdatedfile",
+          "queries": { "folderId": "intake", "maxFileCount": 10 }
+        }
+      }
+    },
+    "actions": {
+      "Read_blob_content": {
+        "type": "ApiConnection",
+        "runAfter": {},
+        "inputs": {
+          "host": { "connection": { "referenceName": "azureblob" } },
+          "method": "get",
+          "path": "/datasets/default/files/@{encodeURIComponent(triggerBody()?['Id'])}/content"
+        }
+      },
+      "Stage_1_Extract_fields": {
+        "type": "ServiceProvider",
+        "runAfter": { "Read_blob_content": ["Succeeded"] },
+        "inputs": {
+          "parameters": {
+            "deploymentId": "gpt-4o",
+            "messages": [
+              { "role": "system", "content": "Extract intent, entities, and sentiment from the input as JSON." },
+              { "role": "user", "content": "@body('Read_blob_content')" }
+            ]
+          },
+          "serviceProviderConfiguration": {
+            "connectionName": "openai",
+            "operationId": "getChatCompletions",
+            "serviceProviderId": "/serviceProviders/openai"
+          }
+        },
+        "retryPolicy": { "type": "exponential", "count": 3, "interval": "PT10S" }
+      },
+      "Stage_2_Draft_response": {
+        "type": "ServiceProvider",
+        "runAfter": { "Stage_1_Extract_fields": ["Succeeded"] },
+        "inputs": {
+          "parameters": {
+            "deploymentId": "gpt-4o",
+            "messages": [
+              { "role": "system", "content": "Draft a customer response based on the extracted fields." },
+              { "role": "user", "content": "@body('Stage_1_Extract_fields')" }
+            ]
+          },
+          "serviceProviderConfiguration": {
+            "connectionName": "openai",
+            "operationId": "getChatCompletions",
+            "serviceProviderId": "/serviceProviders/openai"
+          }
+        },
+        "retryPolicy": { "type": "exponential", "count": 3, "interval": "PT10S" }
+      },
+      "Stage_3_Validate_draft": {
+        "type": "ServiceProvider",
+        "runAfter": { "Stage_2_Draft_response": ["Succeeded"] },
+        "inputs": {
+          "parameters": {
+            "deploymentId": "gpt-4o",
+            "messages": [
+              { "role": "system", "content": "Check the draft for tone and factual consistency with the extracted fields. Return the final approved text." },
+              { "role": "user", "content": "@body('Stage_2_Draft_response')" }
+            ]
+          },
+          "serviceProviderConfiguration": {
+            "connectionName": "openai",
+            "operationId": "getChatCompletions",
+            "serviceProviderId": "/serviceProviders/openai"
+          }
+        },
+        "retryPolicy": { "type": "exponential", "count": 3, "interval": "PT10S" }
+      },
+      "Write_output_blob": {
+        "type": "ApiConnection",
+        "runAfter": { "Stage_3_Validate_draft": ["Succeeded"] },
+        "inputs": {
+          "host": { "connection": { "referenceName": "azureblob" } },
+          "method": "post",
+          "path": "/datasets/default/files",
+          "queries": { "folderPath": "/output", "name": "@{triggerBody()?['Name']}" },
+          "body": "@body('Stage_3_Validate_draft')"
+        }
+      },
+      "Send_to_ServiceBus": {
+        "type": "ServiceProvider",
+        "runAfter": { "Write_output_blob": ["Succeeded"] },
+        "inputs": {
+          "parameters": {
+            "entityName": "chain-output",
+            "message": { "contentData": "@body('Stage_3_Validate_draft')" }
+          },
+          "serviceProviderConfiguration": {
+            "connectionName": "servicebus",
+            "operationId": "sendMessage",
+            "serviceProviderId": "/serviceProviders/serviceBus"
+          }
+        }
+      }
+    }
+  },
+  "kind": "Stateful"
+}
