@@ -1,24 +1,31 @@
 # Agentic AI Design Patterns on Azure, Part 3: Reflection
 
-Reflection adds a second pass: the agent writes an initial answer, then reviews its own work before it's shown to the user. It's a small change with an outsized effect on quality-critical outputs — code generation, compliance language, anything where "good enough on the first try" isn't good enough.
+<!-- Meta description: Explore the Reflection agentic AI pattern on Azure, where agents draft, critique, and revise their own answers using Durable Functions. -->
 
-## The pattern
+Reflection adds a second pass: the agent writes an initial answer, then reviews its own work before it's shown to the user. It's a small change, but it has an outsized effect on quality-critical outputs — code generation, compliance language, and anything where "good enough on the first try" isn't good enough.
+
+## The Reflection pattern
 
 `Initial Answer → Reflect (self-review) → Revise Answer → Final Answer`
 
-Best for quality-critical outputs, code, compliance, and accuracy improvement.
+<figure>
+  <img src="images/03-reflection-diagram.svg" alt="Diagram of the Reflection agentic AI pattern showing draft, reflect, and revise steps looping back to reflect before producing a final answer" title="Reflection pattern architecture on Azure" width="700" />
+  <figcaption>The Reflection pattern: the agent drafts, reflects, and revises before returning a final answer.</figcaption>
+</figure>
+
+This pattern works best for quality-critical outputs, code, compliance text, and any scenario where accuracy matters more than speed.
 
 ## Azure architecture
 
 | Component | Azure Service | Role |
 |---|---|---|
-| Drafting | Azure OpenAI Service (gpt-4.1) | Produces the initial answer |
-| Critique | Azure OpenAI Service (same or a second, cheaper deployment e.g. gpt-4.1-mini) | Reviews the draft against a rubric and returns structured issues |
+| Drafting | Azure OpenAI Service (GPT-4o) | Produces the initial answer |
+| Critique | Azure OpenAI Service (same or a second, cheaper deployment e.g. GPT-4o-mini) | Reviews the draft against a rubric and returns structured issues |
 | Revision | Azure OpenAI Service | Produces the final answer conditioned on the critique |
 | Orchestration | Durable Functions | Chains draft → critique → revise as a durable, replay-safe sequence, with an optional loop if the critique still fails the rubric |
 | Audit trail | Azure Blob Storage | Stores every draft/critique/revision triple for compliance review |
 
-Using a cheaper model deployment for the critique step (gpt-4.1-mini rather than gpt-4.1) is a deliberate cost optimization — critique is a narrower task than generation and doesn't need the largest model.
+Using a cheaper model deployment for the critique step (GPT-4o-mini rather than GPT-4o) is a deliberate cost optimization — critique is a narrower task than generation and doesn't need the largest model.
 
 ## Implementation walkthrough
 
@@ -37,6 +44,6 @@ azd up
 
 ## When to reach for this pattern
 
-Use Reflection when the cost of a bad first answer is higher than the cost of a second model call — generated code, legal or compliance-adjacent text, anything customer-facing where tone matters. Skip it for latency-sensitive, low-stakes lookups; doubling the number of model calls doubles the latency and cost for no benefit if the first-pass answer is already reliably good.
+Use Reflection when the cost of a bad first answer is higher than the cost of a second model call. Generated code, legal or compliance-adjacent text, and anything customer-facing where tone matters all qualify. That said, skip it for latency-sensitive, low-stakes lookups, because doubling the number of model calls doubles the latency and cost for no benefit if the first-pass answer is already reliably good.
 
 **Repo:** `repos/03-reflection` — Bicep IaC + C# Durable Functions draft/critique/revise sample.

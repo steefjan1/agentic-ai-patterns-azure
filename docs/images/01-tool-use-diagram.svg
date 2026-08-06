@@ -1,0 +1,25 @@
+<svg viewBox="0 0 730 200" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#616161"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="65" width="150" height="70" rx="10" fill="#0078D4"/>
+  <text x="95" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">User Request</text>
+
+  <line x1="170" y1="100" x2="198" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow1)"/>
+
+  <rect x="200" y="65" width="150" height="70" rx="10" fill="#005A9E"/>
+  <text x="275" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">AI Agent</text>
+
+  <line x1="350" y1="100" x2="378" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow1)"/>
+
+  <rect x="380" y="65" width="150" height="70" rx="10" fill="#0078D4"/>
+  <text x="455" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">Tool</text>
+
+  <line x1="530" y1="100" x2="558" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow1)"/>
+
+  <rect x="560" y="65" width="150" height="70" rx="10" fill="#50E6FF"/>
+  <text x="635" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#1B1B1B">Result</text>
+</svg>

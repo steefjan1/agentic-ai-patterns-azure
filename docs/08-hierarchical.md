@@ -1,12 +1,19 @@
 # Agentic AI Design Patterns on Azure, Part 8: Hierarchical
 
-Hierarchical looks similar to Orchestrator at a glance, but the relationship is different: a manager agent supervises expert sub-agents rather than simply routing to them, and the sub-agents can be organized by domain the way a large organization is — Finance, Ops, IT, each with its own expert. It's the pattern for large, multi-domain systems where governance and clear ownership per domain matter as much as the answer itself.
+<!-- Meta description: Explore the Hierarchical agentic AI pattern on Azure, where a manager agent delegates to domain sub-agents via AI Foundry and Service Bus. -->
 
-## The pattern
+Hierarchical looks similar to Orchestrator at a glance, but the relationship is different: a manager agent supervises expert sub-agents rather than simply routing to them. In addition, the sub-agents can be organized by domain the way a large organization is — Finance, Ops, IT, each with its own expert. As a result, it's the pattern for large, multi-domain systems where governance and clear ownership per domain matter as much as the answer itself.
+
+## The Hierarchical pattern
 
 `User Request → Manager Agent (Top Agent) → Sub Agent A (Finance), Sub Agent B (Ops), ... Sub Agent N (IT) → Consolidate & Respond`
 
-Best for large organizations, multi-domain systems, and governance/delegation.
+<figure>
+  <img src="images/08-hierarchical-diagram.svg" alt="Diagram of the Hierarchical agentic AI pattern showing a manager agent dispatching to Finance, Ops, and IT sub-agents and consolidating their responses" title="Hierarchical pattern architecture on Azure" width="700" />
+  <figcaption>The Hierarchical pattern: a manager agent delegates to domain sub-agents, then consolidates their answers.</figcaption>
+</figure>
+
+This pattern works best for large organizations, multi-domain systems, and governance-heavy delegation.
 
 ## Azure architecture
 
@@ -37,6 +44,6 @@ azd up
 
 ## When to reach for this pattern
 
-Reach for Hierarchical when domains are owned by different teams or systems of record and you need that separation preserved in the architecture, not just in the prompt — regulated industries and large enterprises are the common case. If your specialists are really just stateless tools with no independent data ownership, Orchestrator is simpler and cheaper to run.
+Reach for Hierarchical when domains are owned by different teams or systems of record and you need that separation preserved in the architecture, not just in the prompt. Regulated industries and large enterprises are the common case. On the other hand, if your specialists are really just stateless tools with no independent data ownership, Orchestrator is simpler and cheaper to run.
 
 **Repo:** `repos/08-hierarchical` — Bicep IaC + Azure AI Foundry manager agent + Service Bus-connected domain sub-agents.

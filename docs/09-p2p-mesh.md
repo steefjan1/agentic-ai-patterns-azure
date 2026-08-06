@@ -1,12 +1,19 @@
 # Agentic AI Design Patterns on Azure, Part 9: P2P Mesh
 
-P2P Mesh removes the central coordinator entirely: agents collaborate directly, each reacting to events from the others, with no single point that decides what happens next. It's the pattern for decentralized, resilient agent ecosystems — the trade-off is that you give up the simplicity of a single control point in exchange for no single point of failure.
+<!-- Meta description: See how the P2P Mesh agentic AI pattern removes central coordination on Azure using Event Grid pub-sub between independent agents. -->
 
-## The pattern
+P2P Mesh removes the central coordinator entirely: agents collaborate directly, each reacting to events from the others, with no single point that decides what happens next. Consequently, it's the pattern for decentralized, resilient agent ecosystems. The trade-off is that you give up the simplicity of a single control point in exchange for no single point of failure.
+
+## The P2P Mesh pattern
 
 `Agent A ↔ Agent B ↔ Agent C ↔ Agent N (all interconnected) → Final Output`
 
-Best for decentralized systems, resilience, and emergent collaboration.
+<figure>
+  <img src="images/09-p2p-mesh-diagram.svg" alt="Diagram of the P2P Mesh agentic AI pattern showing three agents connected through a shared event grid with no central coordinator" title="P2P Mesh pattern architecture on Azure" width="700" />
+  <figcaption>The P2P Mesh pattern: agents react to each other's events through a shared event backbone, with no central coordinator.</figcaption>
+</figure>
+
+This pattern works best for decentralized systems, resilience, and emergent collaboration.
 
 ## Azure architecture
 
@@ -37,6 +44,6 @@ azd up
 
 ## When to reach for this pattern
 
-Reach for P2P Mesh when you genuinely need agents that can be added, removed, or scaled independently without a central bottleneck — multi-team agent ecosystems, or systems where resilience to a coordinator failing matters more than predictability. It's the hardest pattern to debug and reason about of the nine, precisely because there's no single place execution flows through — don't adopt it until Orchestrator or Hierarchical has actually become a bottleneck.
+Reach for P2P Mesh when you genuinely need agents that can be added, removed, or scaled independently without a central bottleneck. Multi-team agent ecosystems, or systems where resilience to a coordinator failing matters more than predictability, are the clearest cases. That said, it's the hardest pattern to debug and reason about of the nine, precisely because there's no single place execution flows through. For that reason, don't adopt it until Orchestrator or Hierarchical has actually become a bottleneck.
 
 **Repo:** `repos/09-p2p-mesh` — Bicep IaC + C# Event Grid-triggered Azure Functions mesh sample.

@@ -1,0 +1,30 @@
+<svg viewBox="0 0 860 200" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#616161"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="65" width="140" height="70" rx="10" fill="#50E6FF"/>
+  <text x="90" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#1B1B1B">Input</text>
+
+  <line x1="160" y1="100" x2="188" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow6)"/>
+
+  <rect x="190" y="65" width="140" height="70" rx="10" fill="#0078D4"/>
+  <text x="260" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">Extract</text>
+
+  <line x1="330" y1="100" x2="358" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow6)"/>
+
+  <rect x="360" y="65" width="140" height="70" rx="10" fill="#0078D4"/>
+  <text x="430" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">Draft</text>
+
+  <line x1="500" y1="100" x2="528" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow6)"/>
+
+  <rect x="530" y="65" width="140" height="70" rx="10" fill="#0078D4"/>
+  <text x="600" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">Validate</text>
+
+  <line x1="670" y1="100" x2="698" y2="100" stroke="#616161" stroke-width="2" marker-end="url(#arrow6)"/>
+
+  <rect x="700" y="65" width="140" height="70" rx="10" fill="#005A9E"/>
+  <text x="770" y="105" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#FFFFFF">Output</text>
+</svg>

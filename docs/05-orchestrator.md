@@ -1,12 +1,19 @@
 # Agentic AI Design Patterns on Azure, Part 5: Orchestrator
 
-The Orchestrator pattern introduces a central coordinator that delegates work to specialist agents and aggregates their results. It's the pattern enterprise AI platforms converge on once a single agent can no longer reasonably cover research, data lookups, and analytics in one prompt — you split by domain and let a coordinator route.
+<!-- Meta description: Learn how the Orchestrator agentic AI pattern coordinates specialist agents on Azure using AI Foundry Agent Service and Azure Functions. -->
 
-## The pattern
+The Orchestrator pattern introduces a central coordinator that delegates work to specialist agents and aggregates their results. Once a single agent can no longer reasonably cover research, data lookups, and analytics in one prompt, this is the pattern enterprise AI platforms converge on: you split by domain and let a coordinator route.
+
+## The Orchestrator pattern
 
 `User Request → Orchestrator (Agent) → Agent 1 (Research), Agent 2 (Data), ... Agent N (Analytics) → Aggregate & Respond`
 
-Best for enterprise platforms, domain specialization, and governance.
+<figure>
+  <img src="images/05-orchestrator-diagram.svg" alt="Diagram of the Orchestrator agentic AI pattern showing a central orchestrator dispatching to three specialist agents and aggregating their responses" title="Orchestrator pattern architecture on Azure" width="700" />
+  <figcaption>The Orchestrator pattern: a central agent routes work to specialists, then aggregates the results.</figcaption>
+</figure>
+
+This pattern works best for enterprise platforms, domain specialization, and governance.
 
 ## Azure architecture
 
@@ -38,6 +45,6 @@ azd up
 
 ## When to reach for this pattern
 
-Reach for Orchestrator when you have genuinely distinct domains of expertise that benefit from separate prompts, separate tools, and separate governance — and you want one entry point for the user. It's more infrastructure than a single agent needs, so don't reach for it until Tool Use or ReAct inside a single agent has actually become unwieldy.
+Reach for Orchestrator when you have genuinely distinct domains of expertise that benefit from separate prompts, separate tools, and separate governance, and you want one entry point for the user. That said, it's more infrastructure than a single agent needs, so don't reach for it until Tool Use or ReAct inside a single agent has actually become unwieldy.
 
 **Repo:** `repos/05-orchestrator` — Bicep IaC + Azure AI Foundry orchestrator agent + three specialist Azure Functions.

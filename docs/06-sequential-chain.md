@@ -1,12 +1,19 @@
 # Agentic AI Design Patterns on Azure, Part 6: Sequential Chain
 
-Sequential Chain is the pattern for structured business processes: the output of one agent becomes the input to the next, in a fixed pipeline. There's no branching and no re-planning — just a series of well-defined stages, which makes it a natural fit for a low-code orchestration layer rather than hand-written control flow.
+<!-- Meta description: Understand the Sequential Chain agentic AI pattern on Azure, built with Logic Apps Standard and Azure OpenAI for fixed pipelines. -->
 
-## The pattern
+Sequential Chain is the pattern for structured business processes: the output of one agent becomes the input to the next, in a fixed pipeline. There's no branching and no re-planning here — just a series of well-defined stages. Because of that simplicity, it's a natural fit for a low-code orchestration layer rather than hand-written control flow.
+
+## The Sequential Chain pattern
 
 `Input → Agent 1 → Agent 2 → ... → Agent N → Output`
 
-Best for pipelines, ETL, content generation, and step-by-step processing.
+<figure>
+  <img src="images/06-sequential-chain-diagram.svg" alt="Diagram of the Sequential Chain agentic AI pattern showing input flowing through extract, draft, and validate stages to output" title="Sequential Chain pattern architecture on Azure" width="700" />
+  <figcaption>The Sequential Chain pattern: a fixed pipeline where each stage's output feeds the next.</figcaption>
+</figure>
+
+This pattern works best for pipelines, ETL, content generation, and step-by-step processing.
 
 ## Azure architecture
 
@@ -37,6 +44,6 @@ azd up
 
 ## When to reach for this pattern
 
-Use Sequential Chain when the stages and their order are known and fixed — content pipelines, document processing, structured ETL over unstructured input. It's the cheapest pattern to operate and reason about because there's no dynamic branching to test; if you find yourself wanting a stage to conditionally skip or repeat based on model output, you've drifted into Planning or ReAct territory.
+Use Sequential Chain when the stages and their order are known and fixed: content pipelines, document processing, and structured ETL over unstructured input all qualify. It's also the cheapest pattern to operate and reason about, because there's no dynamic branching to test. That said, if you find yourself wanting a stage to conditionally skip or repeat based on model output, you've drifted into Planning or ReAct territory.
 
 **Repo:** `repos/06-sequential-chain` — Bicep IaC + Logic Apps Standard workflow calling Azure OpenAI in sequence.

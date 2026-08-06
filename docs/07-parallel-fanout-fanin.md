@@ -1,12 +1,19 @@
 # Agentic AI Design Patterns on Azure, Part 7: Parallel Fan-out/Fan-in
 
-Parallel Fan-out/Fan-in runs multiple agents at the same time over the same input and combines their results at the end, instead of running them one after another. When the sub-tasks are independent, this is a straightforward way to cut latency and scale horizontally — and it happens to be a first-class, named pattern in Azure Durable Functions.
+<!-- Meta description: Learn how the Parallel Fan-out/Fan-in agentic AI pattern speeds up processing on Azure using Durable Functions' Task.WhenAll support. -->
 
-## The pattern
+Parallel Fan-out/Fan-in runs multiple agents at the same time over the same input, then combines their results at the end, instead of running them one after another. When the sub-tasks are independent, this is a straightforward way to cut latency and scale horizontally. Better still, it happens to be a first-class, named pattern in Azure Durable Functions.
+
+## The Parallel Fan-out/Fan-in pattern
 
 `Input → Agent A, Agent B, ... Agent N (parallel) → Aggregator (Join, e.g. Σ) → Output`
 
-Best for independent tasks, data processing, summaries, and analysis at scale.
+<figure>
+  <img src="images/07-parallel-fanout-fanin-diagram.svg" alt="Diagram of the Parallel Fan-out/Fan-in agentic AI pattern showing input splitting into three parallel tasks that converge into an aggregate output" title="Parallel Fan-out/Fan-in pattern architecture on Azure" width="700" />
+  <figcaption>The Parallel Fan-out/Fan-in pattern: independent tasks run at once, then join into one output.</figcaption>
+</figure>
+
+This pattern works best for independent tasks, data processing, summaries, and analysis at scale.
 
 ## Azure architecture
 
@@ -37,6 +44,6 @@ azd up
 
 ## When to reach for this pattern
 
-Use Parallel Fan-out/Fan-in when the sub-tasks genuinely don't depend on each other — summarizing independent document chunks, scoring a batch of items, gathering N independent perspectives before synthesis. If a later branch needs the result of an earlier one, this collapses back into Sequential Chain; don't force parallelism onto a problem that has a real dependency order.
+Use Parallel Fan-out/Fan-in when the sub-tasks genuinely don't depend on each other: summarizing independent document chunks, scoring a batch of items, or gathering N independent perspectives before synthesis are all good fits. However, if a later branch needs the result of an earlier one, this collapses back into Sequential Chain, so don't force parallelism onto a problem that has a real dependency order.
 
 **Repo:** `repos/07-parallel-fanout-fanin` — Bicep IaC + C# Durable Functions fan-out/fan-in sample.
