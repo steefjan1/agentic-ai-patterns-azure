@@ -54,10 +54,10 @@ public class ManagerService
         var options = new ChatCompletionOptions { ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat() };
         var messages = new List<ChatMessage>
         {
-            new SystemChatMessage($"""
-                You route requests to domain experts: {string.Join(", ", KnownDomains)}.
+            new SystemChatMessage($$"""
+                You route requests to domain experts: {{string.Join(", ", KnownDomains)}}.
                 Decide which domains are relevant to the user's request (at least one).
-                Respond as STRICT JSON: {{ "domains": ["Finance", "Ops"] }}.
+                Respond as STRICT JSON: { "domains": ["Finance", "Ops"] }.
                 """),
             new UserChatMessage(userMessage),
         };

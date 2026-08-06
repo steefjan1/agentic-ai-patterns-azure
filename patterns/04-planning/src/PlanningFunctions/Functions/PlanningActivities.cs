@@ -32,10 +32,10 @@ public class PlanningActivities
         var options = new ChatCompletionOptions { ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat() };
         var messages = new List<ChatMessage>
         {
-            new SystemChatMessage($"""
+            new SystemChatMessage($$"""
                 Decompose the user's goal into an ordered list of steps. Each step must have a
-                "type" from this fixed set: {string.Join(", ", AllowedStepTypes)}, and a short
-                "description". Respond as STRICT JSON: {{ "steps": [{{ "type": "...", "description": "..." }}] }}.
+                "type" from this fixed set: {{string.Join(", ", AllowedStepTypes)}}, and a short
+                "description". Respond as STRICT JSON: { "steps": [{ "type": "...", "description": "..." }] }.
                 """),
             new UserChatMessage(goal),
         };

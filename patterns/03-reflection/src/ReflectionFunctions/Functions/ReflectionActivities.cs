@@ -48,9 +48,9 @@ public class ReflectionActivities
         var options = new ChatCompletionOptions { ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat() };
         var messages = new List<ChatMessage>
         {
-            new SystemChatMessage($"""
-                You are a strict reviewer. Evaluate the draft against this rubric: "{input.Rubric}".
-                Respond as STRICT JSON: {{ "pass": true|false, "issues": ["issue 1", "issue 2"] }}.
+            new SystemChatMessage($$"""
+                You are a strict reviewer. Evaluate the draft against this rubric: "{{input.Rubric}}".
+                Respond as STRICT JSON: { "pass": true|false, "issues": ["issue 1", "issue 2"] }.
                 "pass" is true only if there are no material issues.
                 """),
             new UserChatMessage($"Original request: {input.Prompt}\n\nDraft:\n{input.Draft}"),
