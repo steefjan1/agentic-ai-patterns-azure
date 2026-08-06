@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using HierarchicalFunctions.Services;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();

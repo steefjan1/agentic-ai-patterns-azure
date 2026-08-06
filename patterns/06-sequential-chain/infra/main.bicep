@@ -32,7 +32,7 @@ module openai '../../../infra/modules/openai.bicep' = {
 }
 
 resource openAiAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
-  name: openai.outputs.name
+  name: 'aoai-${resourceToken}'
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {

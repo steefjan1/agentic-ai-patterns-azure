@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using OrchestratorFunctions.Services;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
