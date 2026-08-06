@@ -54,6 +54,18 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   }
 }
 
+// ---------- Deployment package container (required for Flex Consumption zip-deploy) ----------
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+  parent: storage
+  name: 'default'
+}
+
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'deploymentpackage'
+  properties: { publicAccess: 'None' }
+}
+
 // ---------- Key Vault ----------
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: 'kv-${resourceToken}'
@@ -89,6 +101,9 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   identity: {
     type: 'SystemAssigned'
   }
+  dependsOn: [
+    deploymentContainer
+  ]
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
