@@ -10,6 +10,7 @@ namespace FanOutFunctions.Functions;
 
 public class FanOutOrchestrator
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     [Function(nameof(RunFanOut))]
     public async Task<FanOutResult> RunFanOut([OrchestrationTrigger] TaskOrchestrationContext context)
     {
@@ -56,7 +57,7 @@ public class FanOutOrchestrator
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "fanout/start")] HttpRequestData req,
         [DurableClient] DurableTaskClient client)
     {
-        var request = await JsonSerializer.DeserializeAsync<FanOutRequest>(req.Body);
+        var request = await JsonSerializer.DeserializeAsync<FanOutRequest>(req.Body, JsonOptions);
         if (request is null || string.IsNullOrWhiteSpace(request.Document))
         {
             var bad = req.CreateResponse(HttpStatusCode.BadRequest);

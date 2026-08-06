@@ -10,6 +10,7 @@ namespace HierarchicalFunctions.Functions;
 
 public class ManagerFunction
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly ManagerService _managerService;
     private readonly ILogger<ManagerFunction> _logger;
 
@@ -23,7 +24,7 @@ public class ManagerFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "manager/start")] HttpRequestData req)
     {
-        var body = await JsonSerializer.DeserializeAsync<ManagerRequest>(req.Body);
+        var body = await JsonSerializer.DeserializeAsync<ManagerRequest>(req.Body, JsonOptions);
         if (body is null || string.IsNullOrWhiteSpace(body.Message))
         {
             var bad = req.CreateResponse(HttpStatusCode.BadRequest);

@@ -10,6 +10,7 @@ namespace ReflectionFunctions.Functions;
 
 public class ReflectionOrchestrator
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private const int MaxRevisions = 2;
 
     [Function(nameof(RunReflectionLoop))]
@@ -59,7 +60,7 @@ public class ReflectionOrchestrator
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "reflect/start")] HttpRequestData req,
         [DurableClient] DurableTaskClient client)
     {
-        var request = await JsonSerializer.DeserializeAsync<ReflectionRequest>(req.Body);
+        var request = await JsonSerializer.DeserializeAsync<ReflectionRequest>(req.Body, JsonOptions);
         if (request is null || string.IsNullOrWhiteSpace(request.Prompt))
         {
             var bad = req.CreateResponse(HttpStatusCode.BadRequest);

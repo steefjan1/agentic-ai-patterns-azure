@@ -10,6 +10,7 @@ namespace ReactFunctions.Functions;
 
 public class ReActOrchestrator
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private const int MaxIterations = 6;
 
     [Function(nameof(RunReActLoop))]
@@ -59,7 +60,7 @@ public class ReActOrchestrator
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "react/start")] HttpRequestData req,
         [DurableClient] DurableTaskClient client)
     {
-        var request = await JsonSerializer.DeserializeAsync<ReActRequest>(req.Body);
+        var request = await JsonSerializer.DeserializeAsync<ReActRequest>(req.Body, JsonOptions);
         if (request is null || string.IsNullOrWhiteSpace(request.Goal))
         {
             var bad = req.CreateResponse(System.Net.HttpStatusCode.BadRequest);

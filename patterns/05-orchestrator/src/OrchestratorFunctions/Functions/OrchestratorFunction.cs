@@ -10,6 +10,7 @@ namespace OrchestratorFunctions.Functions;
 
 public class OrchestratorFunction
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly FoundryAgentService _agentService;
     private readonly ILogger<OrchestratorFunction> _logger;
 
@@ -23,7 +24,7 @@ public class OrchestratorFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "orchestrate")] HttpRequestData req)
     {
-        var body = await JsonSerializer.DeserializeAsync<OrchestratorRequest>(req.Body);
+        var body = await JsonSerializer.DeserializeAsync<OrchestratorRequest>(req.Body, JsonOptions);
         if (body is null || string.IsNullOrWhiteSpace(body.Message))
         {
             var bad = req.CreateResponse(HttpStatusCode.BadRequest);

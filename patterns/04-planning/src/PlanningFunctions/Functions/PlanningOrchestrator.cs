@@ -10,6 +10,7 @@ namespace PlanningFunctions.Functions;
 
 public class PlanningOrchestrator
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     [Function(nameof(RunPlan))]
     public async Task<PlanExecutionResult> RunPlan([OrchestrationTrigger] TaskOrchestrationContext context)
     {
@@ -54,7 +55,7 @@ public class PlanningOrchestrator
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "plan/start")] HttpRequestData req,
         [DurableClient] DurableTaskClient client)
     {
-        var request = await JsonSerializer.DeserializeAsync<PlanningRequest>(req.Body);
+        var request = await JsonSerializer.DeserializeAsync<PlanningRequest>(req.Body, JsonOptions);
         if (request is null || string.IsNullOrWhiteSpace(request.Goal))
         {
             var bad = req.CreateResponse(HttpStatusCode.BadRequest);

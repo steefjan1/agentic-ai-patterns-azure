@@ -10,6 +10,7 @@ namespace ToolUseFunctions.Functions;
 
 public class AgentFunction
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly AgentService _agentService;
     private readonly ILogger<AgentFunction> _logger;
 
@@ -23,7 +24,7 @@ public class AgentFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "agent")] HttpRequestData req)
     {
-        var body = await JsonSerializer.DeserializeAsync<AgentRequest>(req.Body);
+        var body = await JsonSerializer.DeserializeAsync<AgentRequest>(req.Body, JsonOptions);
 
         if (body is null || string.IsNullOrWhiteSpace(body.Message))
         {

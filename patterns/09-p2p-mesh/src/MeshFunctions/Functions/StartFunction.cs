@@ -9,6 +9,7 @@ namespace MeshFunctions.Functions;
 
 public class StartFunction
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly EventPublisherService _publisher;
     private readonly CorrelationStateService _state;
 
@@ -22,7 +23,7 @@ public class StartFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "mesh/start")] HttpRequestData req)
     {
-        var body = await JsonSerializer.DeserializeAsync<MeshStartRequest>(req.Body);
+        var body = await JsonSerializer.DeserializeAsync<MeshStartRequest>(req.Body, JsonOptions);
         if (body is null || string.IsNullOrWhiteSpace(body.Topic))
         {
             var bad = req.CreateResponse(HttpStatusCode.BadRequest);
