@@ -2,6 +2,7 @@ using Azure.AI.Projects;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using OrchestratorFunctions.Services;
 

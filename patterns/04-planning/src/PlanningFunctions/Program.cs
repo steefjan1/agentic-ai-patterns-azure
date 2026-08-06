@@ -2,6 +2,7 @@ using Azure.AI.OpenAI;
 using Azure.Data.Tables;
 using Azure.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
