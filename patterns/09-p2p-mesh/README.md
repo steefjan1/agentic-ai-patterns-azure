@@ -89,6 +89,52 @@ curl -X POST http://localhost:7071/api/mesh/start \
 curl http://localhost:7071/api/mesh/status/<correlationId>
 ```
 
+PowerShell equivalent:
+
+```powershell
+$body = @{ topic = "What is Kubernetes and how does it relate to Azure Container Apps?" } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/mesh/start" -Body $body -ContentType "application/json"
+$start
+
+Invoke-RestMethod -Uri "http://localhost:7071/api/mesh/status/$($start.correlationId)"
+```
+
+## Test the deployed app
+
+Two prerequisites before this will produce a meaningful result:
+
+1. **Event Grid subscriptions must be wired** — run `./scripts/create-event-subscriptions.sh` (or the equivalent `az eventgrid event-subscription create` calls) after `azd up`, pointed at the deployed function endpoints. Without this, agents publish events that nothing is subscribed to, and the mesh never progresses past `request.created`.
+2. **The fact-check agent's search index is unseeded** by default — see the [ReAct pattern's index-seeding steps](../02-react/README.md#test-the-deployed-app) for the same approach.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name mesh_start --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = @{ topic = "What is Kubernetes and how does it relate to Azure Container Apps?" } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/mesh/start?code=$key" -Body $body -ContentType "application/json"
+$start
+```
+
+`StatusFunction` is a separate HTTP-triggered function, so it needs its own key:
+
+```powershell
+$statusKey = az functionapp function keys list -g $rg -n $funcApp --function-name mesh_status --query "default" -o tsv
+if (-not $statusKey) { $statusKey = $key }
+
+# Poll every few seconds until the mesh finishes
+Invoke-RestMethod -Uri "https://$funcApp.azurewebsites.net/api/mesh/status/$($start.correlationId)?code=$statusKey"
+```
+
+If the status stays unresolved indefinitely, that almost always means step 1 (Event Grid subscriptions) wasn't done — check Application Insights for whether `ResearchAgentFunction` fired at all:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "requests | where name contains 'ResearchAgent' | order by timestamp desc | take 5" -o table
+```
+
 ## Key design points
 
 - No agent function calls another agent directly or knows the other agents exist — each only knows the event types it subscribes to. Agents can be added, removed, or independently redeployed without touching the others.

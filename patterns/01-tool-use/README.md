@@ -8,7 +8,7 @@ The simplest agentic pattern: one Azure OpenAI call decides which tool to invoke
 
 | Component | Azure Service |
 |---|---|
-| Reasoning + function-calling | Azure OpenAI Service (gpt-4.1 deployment) |
+| Reasoning + function-calling | Azure OpenAI Service (GPT-4o deployment) |
 | Agent entry point + tool execution | Azure Functions (.NET 8 Isolated Worker, HTTP triggers) |
 | Secrets | Azure Key Vault |
 | Telemetry | Application Insights |
@@ -70,15 +70,34 @@ curl -X POST http://localhost:7071/api/agent \
   -H "Content-Type: application/json" \
   -d '{"message": "What is the status of order 1042?"}'
 ```
-```bash
- curl -X POST http://localhost:7071/api/agent \
-   -H "Content-Type: application/json" \
-   -d '{"message": "What is the status of order 1042?"}'
-```
- 
-``powershell
+
+PowerShell equivalent:
+
+```powershell
 $body = @{ message = "What is the status of order 1042?" } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/agent" -Body $body -ContentType "application/json"
+```
+
+## Test the deployed app
+
+The Function App requires a function key (`AuthorizationLevel.Function`), so calls to the live endpoint need one extra step beyond the local `curl`/PowerShell examples above.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name agent --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = @{ message = "What is the status of order 1042?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/agent?code=$key" -Body $body -ContentType "application/json"
+```
+
+This is synchronous — the response comes back directly with the final answer (no polling required). If something goes wrong, check Application Insights:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
 ```
 
 ## Key design point

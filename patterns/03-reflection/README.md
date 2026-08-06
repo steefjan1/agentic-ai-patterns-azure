@@ -72,6 +72,8 @@ curl -X POST http://localhost:7071/api/reflect/start \
   -d '{"prompt": "Write a function that validates an IBAN number.", "rubric": "Code must be correct, handle edge cases, and include a docstring."}'
 ```
 
+PowerShell equivalent:
+
 ```powershell
 $body = @{
     prompt = "Write a function that validates an IBAN number."
@@ -82,6 +84,33 @@ $start
 
 # Poll until the orchestration finishes
 Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
+## Test the deployed app
+
+Durable Functions — the initial call only registers the run, so poll `statusQueryGetUri` for the result.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name reflect_start --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = @{
+    prompt = "Write a function that validates an IBAN number."
+    rubric = "Code must be correct, handle edge cases, and include a docstring."
+} | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/reflect/start?code=$key" -Body $body -ContentType "application/json"
+
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
+Re-run the last line every few seconds until `runtimeStatus` is `Completed`. If it fails instead, check Application Insights:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
 ```
 
 ## Key design points

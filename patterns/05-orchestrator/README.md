@@ -81,12 +81,36 @@ curl -X POST http://localhost:7071/api/orchestrate \
   -d '{"message": "How many enterprise accounts churned last quarter, and what does our documentation say we should do about churn risk?"}'
 ```
 
+PowerShell equivalent:
+
 ```powershell
 $body = @{ message = "How many enterprise accounts churned last quarter, and what does our documentation say we should do about churn risk?" } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/orchestrate" -Body $body -ContentType "application/json"
 ```
 
 This single request touches both the Data specialist (churn count from Azure SQL) and the Research specialist (churn-risk guidance from Azure AI Search) — the orchestrator agent decides to call both and merges the results itself.
+
+## Test the deployed app
+
+> **Note:** neither the `knowledge-base` search index nor the sample Azure SQL schema/rows are seeded automatically by `azd up`. Without seeding, the Research and Data specialists will report "no results" rather than erroring — the orchestrator still runs, just with nothing to find. See the [ReAct pattern's index-seeding steps](../02-react/README.md#test-the-deployed-app) for the same Azure AI Search seeding approach (swap in this pattern's index name/fields); populating the SQL sample schema is a straightforward `Invoke-Sqlcmd`/`sqlcmd` script against the provisioned server using your own Azure AD login.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name orchestrate --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = @{ message = "How many enterprise accounts churned last quarter, and what does our documentation say we should do about churn risk?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/orchestrate?code=$key" -Body $body -ContentType "application/json"
+```
+
+This is synchronous — the response comes back directly (no polling). If it fails, check Application Insights:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
+```
 
 ## Key design points
 

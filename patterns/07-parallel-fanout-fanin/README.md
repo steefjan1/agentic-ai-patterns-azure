@@ -78,6 +78,8 @@ curl -X POST http://localhost:7071/api/fanout/start \
   -d @data/sample-long-document.json
 ```
 
+PowerShell equivalent:
+
 ```powershell
 $body = Get-Content .\data\sample-long-document.json -Raw
 $start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/fanout/start" -Body $body -ContentType "application/json"
@@ -85,6 +87,30 @@ $start
 
 # Poll until the orchestration finishes
 Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
+## Test the deployed app
+
+Durable Functions — the initial call only registers the run, so poll `statusQueryGetUri` for the result.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name fanout_start --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = Get-Content .\data\sample-long-document.json -Raw
+$start = Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/fanout/start?code=$key" -Body $body -ContentType "application/json"
+
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
+Re-run the last line every few seconds until `runtimeStatus` is `Completed`. If it fails instead, check Application Insights:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
 ```
 
 ## Key design points

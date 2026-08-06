@@ -8,7 +8,7 @@ The agent decomposes a goal into a typed, ordered plan up front, then executes e
 
 | Component | Azure Service |
 |---|---|
-| Plan generation | Azure OpenAI Service (gpt-4.1), structured JSON output |
+| Plan generation | Azure OpenAI Service (GPT-4o), structured JSON output |
 | Plan execution | Durable Functions (orchestrator + activity functions), automatic per-step retry |
 | Step registry | Azure Functions activity functions, one per step type (`summarize`, `notify`, `call_api`) |
 | Progress tracking | Azure Table Storage — one row per step, updated live as execution proceeds |
@@ -76,6 +76,8 @@ curl -X POST http://localhost:7071/api/plan/start \
   -d '{"goal": "Onboard a new enterprise customer: summarize their contract, notify the account team, and call the provisioning API."}'
 ```
 
+PowerShell equivalent:
+
 ```powershell
 $body = @{ goal = "Onboard a new enterprise customer: summarize their contract, notify the account team, and call the provisioning API." } | ConvertTo-Json
 $start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/plan/start" -Body $body -ContentType "application/json"
@@ -83,6 +85,30 @@ $start
 
 # Poll until the orchestration finishes
 Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
+## Test the deployed app
+
+Durable Functions — the initial call only registers the run, so poll `statusQueryGetUri` for the result.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name plan_start --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = @{ goal = "Onboard a new enterprise customer: summarize their contract, notify the account team, and call the provisioning API." } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/plan/start?code=$key" -Body $body -ContentType "application/json"
+
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
+
+Re-run the last line every few seconds until `runtimeStatus` is `Completed`. If it fails instead, check Application Insights:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
 ```
 
 ## Key design points

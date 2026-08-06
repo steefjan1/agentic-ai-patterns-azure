@@ -59,27 +59,38 @@ az deployment group create -g rg-sequential-chain -f infra/main.bicep -p environ
 
 This provisions Azure OpenAI (`gpt-4.1` deployment), a Logic Apps Standard app, a storage account with `intake`/`output` containers, a Service Bus namespace and queue, and Application Insights.
 
-## Try it
+## Test the deployed app
 
-Upload a sample file to the `intake` container (Storage Explorer, `az storage blob upload`, or the portal). Within about a minute, the workflow trigger fires, runs all three Azure OpenAI stages, writes the result to `output/`, and drops a message on the Service Bus queue.
-
-```bash
-az storage blob upload \
-  --account-name <storage-account-name> \
-  --container-name intake \
-  --name sample-request.txt \
-  --file ./data/sample-request.txt \
-  --auth-mode login
-```
+Upload a sample file to the `intake` container. Within about a minute, the workflow trigger fires, runs all three Azure OpenAI stages, writes the result to `output/`, and drops a message on the Service Bus queue.
 
 ```powershell
+$storageAccount = az deployment group show -g rg-sequential-chain -n main --query "properties.outputs.STORAGE_ACCOUNT_NAME.value" -o tsv
+
 az storage blob upload `
-  --account-name <storage-account-name> `
+  --account-name $storageAccount `
   --container-name intake `
   --name sample-request.txt `
   --file ./data/sample-request.txt `
   --auth-mode login
 ```
+
+**Check the result landed in `output/`:**
+
+```powershell
+az storage blob list --account-name $storageAccount --container-name output --auth-mode login -o table
+az storage blob download --account-name $storageAccount --container-name output --name <blob-name-from-above> --file ./result.txt --auth-mode login
+Get-Content .\result.txt
+```
+
+**Check the Service Bus hand-off message landed on the queue** (`chain-output`, fixed name):
+
+```powershell
+$sbNamespaceFqdn = az deployment group show -g rg-sequential-chain -n main --query "properties.outputs.SERVICEBUS_NAMESPACE.value" -o tsv
+$sbNamespace = $sbNamespaceFqdn -replace '\.servicebus\.windows\.net$', ''
+az servicebus queue show --resource-group rg-sequential-chain --namespace-name $sbNamespace --name chain-output --query "countDetails.activeMessageCount"
+```
+
+**If nothing shows up after a minute or two**, the workflow run history in the portal (Logic App resource → Workflow → Run history) is the fastest way to see exactly which stage failed and why — every action's input/output is preserved there, no separate logging setup needed.
 
 ## Key design points
 

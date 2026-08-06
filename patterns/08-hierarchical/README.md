@@ -8,7 +8,7 @@ A manager agent decomposes a request across domain experts, dispatches asynchron
 
 | Component | Azure Service |
 |---|---|
-| Manager agent | Azure OpenAI Service (gpt-4.1) — decomposes the request, dispatches sub-tasks, reconciles replies |
+| Manager agent | Azure OpenAI Service (GPT-4o) — decomposes the request, dispatches sub-tasks, reconciles replies |
 | Inter-agent messaging | Azure Service Bus — a topic (`domain-tasks`) with one filtered subscription per domain, plus a session-enabled reply queue (`domain-replies`) |
 | Sub-agent: Finance | Azure Functions (Service Bus-triggered) + Azure Cosmos DB |
 | Sub-agent: Ops | Azure Functions (Service Bus-triggered) + Azure SQL Database |
@@ -18,7 +18,7 @@ A manager agent decomposes a request across domain experts, dispatches asynchron
 ```
 Client ──HTTP──▶ ManagerFunction
                        │
-             gpt-4.1 decomposes request
+             GPT-4o decomposes request
                        │
         publish to topic "domain-tasks" (filtered by Domain)
         ┌──────────────┼───────────────┐
@@ -29,7 +29,7 @@ Client ──HTTP──▶ ManagerFunction
         └──── replies land on session-scoped "domain-replies" queue ────┘
                        │
                        ▼
-        Manager reconciles (gpt-4.1) → final answer
+        Manager reconciles (GPT-4o) → final answer
 ```
 
 ## Project layout
@@ -81,12 +81,36 @@ curl -X POST http://localhost:7071/api/manager/start \
   -d '{"message": "Can we afford to give the support team new laptops this quarter, and is IT ready to provision them?"}'
 ```
 
+PowerShell equivalent:
+
 ```powershell
 $body = @{ message = "Can we afford to give the support team new laptops this quarter, and is IT ready to provision them?" } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/manager/start" -Body $body -ContentType "application/json"
 ```
 
 This touches all three domains: Finance (budget), Ops (headcount/quarter context), and IT (provisioning capacity) — the manager decides which are relevant, dispatches to each, and reconciles.
+
+## Test the deployed app
+
+> **Note:** the Finance (Cosmos DB), Ops (Azure SQL), and IT (Azure AI Search `it-knowledge-base` index) domain stores are provisioned empty — none are seeded automatically by `azd up`. Without sample data, each sub-agent will reply with "no data found" rather than erroring; the manager still dispatches, waits, and reconciles correctly. See the [ReAct pattern's index-seeding steps](../02-react/README.md#test-the-deployed-app) for the same approach against `it-knowledge-base`.
+
+```powershell
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name manager_start --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
+
+$body = @{ message = "Can we afford to give the support team new laptops this quarter, and is IT ready to provision them?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/manager/start?code=$key" -Body $body -ContentType "application/json"
+```
+
+This is synchronous — the manager waits on the session-scoped Service Bus reply queue internally and returns the reconciled answer directly (no polling). If it fails or times out, check Application Insights:
+
+```powershell
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
+```
 
 ## Key design points
 
