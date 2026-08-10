@@ -63,8 +63,12 @@ This provisions Azure OpenAI (`gpt-4.1` deployment), a Logic Apps Standard app, 
 
 Upload a sample file to the `intake` container. Within about a minute, the workflow trigger fires, runs all three Azure OpenAI stages, writes the result to `output/`, and drops a message on the Service Bus queue.
 
+The Bicep file calls nested modules, and `az deployment group show` sometimes returns their merged output keys with unpredictable casing (e.g. `logiC_APP_NAME` instead of `LOGIC_APP_NAME`). JMESPath (`--query ...value`) matching is case-sensitive and will silently return an empty string if the casing doesn't match, so pull the whole outputs object and let PowerShell access it instead — PowerShell property access is case-insensitive:
+
 ```powershell
-$storageAccount = az deployment group show -g rg-sequential-chain -n main --query "properties.outputs.STORAGE_ACCOUNT_NAME.value" -o tsv
+$outputs = az deployment group show -g rg-sequential-chain -n main --query properties.outputs -o json | ConvertFrom-Json
+$storageAccount = $outputs.STORAGE_ACCOUNT_NAME.value
+$storageAccount   # sanity check -- should not be blank
 
 az storage blob upload `
   --account-name $storageAccount `
@@ -85,7 +89,7 @@ Get-Content .\result.txt
 **Check the Service Bus hand-off message landed on the queue** (`chain-output`, fixed name):
 
 ```powershell
-$sbNamespaceFqdn = az deployment group show -g rg-sequential-chain -n main --query "properties.outputs.SERVICEBUS_NAMESPACE.value" -o tsv
+$sbNamespaceFqdn = $outputs.SERVICEBUS_NAMESPACE.value
 $sbNamespace = $sbNamespaceFqdn -replace '\.servicebus\.windows\.net$', ''
 az servicebus queue show --resource-group rg-sequential-chain --namespace-name $sbNamespace --name chain-output --query "countDetails.activeMessageCount"
 ```
