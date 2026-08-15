@@ -1,105 +1,122 @@
 # Sequential Chain — Azure PaaS Reference Implementation
 
-`Input → Agent 1 → Agent 2 → ... → Agent N → Output`
+`Input → Extract fields → Draft response → Validate draft → Output`
 
-A fixed pipeline of stages, each transforming the output of the last — implemented declaratively as an Azure Logic Apps Standard workflow rather than hand-written orchestration code. See the companion post: [`posts/06-sequential-chain.md`](../../docs/06-sequential-chain.md).
+A fixed, linear pipeline: each stage's output is the next stage's only input, with no shared context and no branching. See the companion post: [`posts/06-sequential-chain.md`](../../docs/06-sequential-chain.md).
+
+> **Implementation note:** this sample originally targeted Logic Apps Standard for the chain itself. It's now built as a Durable Functions orchestrator instead — same fixed three-stage pipeline, but on the same Azure Functions + Durable Task Framework foundation used by every other multi-step pattern in this repo, which turned out to be far more reliable to provision and operate than Logic Apps Standard's `ServiceProvider`-connector model.
 
 ## Architecture
 
 | Component | Azure Service |
 |---|---|
-| Pipeline orchestration | Azure Logic Apps (Standard), declarative workflow with per-action retry policies |
-| Each chain stage | Azure OpenAI Service, called via HTTP action (extract → draft → validate) |
-| Intake / output | Azure Blob Storage (`intake` and `output` containers) |
-| Downstream hand-off | Azure Service Bus (queue) |
-| Observability | Logic Apps run history (built in) + Application Insights |
+| Chain execution | Durable Functions (orchestrator + activity functions), one activity per stage |
+| Stage 1 – Extract fields | Azure OpenAI Service (GPT-4.1) — pulls intent/entities/sentiment out of the raw input as JSON |
+| Stage 2 – Draft response | Azure OpenAI Service (GPT-4.1) — drafts a response from the extracted fields only |
+| Stage 3 – Validate draft | Azure OpenAI Service (GPT-4.1) — checks tone/consistency, returns the final approved text |
+| Output persistence | Azure Blob Storage (`output` container), one blob per run |
+| Completion notification | Azure Service Bus queue (`chain-output`) |
+| Telemetry | Application Insights |
 
 ```
-Blob landed in "intake/" ──trigger──▶ Extract fields (Azure OpenAI)
-                                            │
-                                            ▼
-                                   Draft response (Azure OpenAI)
-                                            │
-                                            ▼
-                                    Validate draft (Azure OpenAI)
-                                            │
-                                            ▼
-                          Write to "output/" + enqueue on Service Bus
+Client ──HTTP──▶ chain_start
+                     │
+                     ▼
+            ChainOrchestrator (Durable)
+                     │
+         ExtractFields (Azure OpenAI) ──▶ extracted JSON
+                     │
+         DraftResponse (Azure OpenAI) ──▶ draft text
+                     │
+         ValidateDraft (Azure OpenAI) ──▶ final text
+                     │
+        ┌────────────┴─────────────┐
+        ▼                          ▼
+  WriteOutputBlob            SendToServiceBus
+  (output container)         (chain-output queue)
 ```
 
 ## Project layout
 
 ```
-infra/                                    Bicep IaC
-workflow/
-  sequential-chain/
-    workflow.json                          The 4-stage Logic Apps Standard workflow definition
-  host.json
-  connections.json                         Placeholder — populated by Bicep-created API connections
-scripts/
-  deploy.sh                                Zip-deploys the workflow app (fallback to azd)
+infra/                                   Bicep IaC (azd-compatible)
+src/SequentialChainFunctions/
+  Program.cs
+  Functions/
+    ChainOrchestrator.cs                 HTTP trigger (chain_start) + Durable orchestrator
+    ChainActivities.cs                   ExtractFields, DraftResponse, ValidateDraft, WriteOutputBlob, SendToServiceBus
+  Models/
+    ChainModels.cs
 ```
 
 ## Prerequisites
 
 - Azure subscription with Azure OpenAI access
-- [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) or Azure CLI
-- [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local) (Logic Apps Standard reuses the Functions runtime for local dev)
+- [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- .NET 8 SDK
 
 ## Deploy
 
 ```bash
-az login
-az group create -n rg-sequential-chain -l eastus
-az deployment group create -g rg-sequential-chain -f infra/main.bicep -p environmentName=sequentialchain
-
-# Zip-deploy the workflow content
-./scripts/deploy.sh rg-sequential-chain
+azd auth login
+azd up
 ```
 
-This provisions Azure OpenAI (`gpt-4.1` deployment), a Logic Apps Standard app, a storage account with `intake`/`output` containers, a Service Bus namespace and queue, and Application Insights.
+Provisions Azure OpenAI, a Durable Functions Function App, Blob Storage (`output` container), a Service Bus namespace with a `chain-output` queue, and Application Insights.
+
+## Run locally
+
+```bash
+cp src/SequentialChainFunctions/local.settings.json.example src/SequentialChainFunctions/local.settings.json
+cd src/SequentialChainFunctions
+func start
+```
+
+```bash
+curl -X POST http://localhost:7071/api/chain/start \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hi, I was charged twice for my subscription this month and I would like a refund for the duplicate charge. This is the second time this has happened. My account email is jordan@example.com."}'
+```
+
+PowerShell equivalent:
+
+```powershell
+$body = @{ text = "Hi, I was charged twice for my subscription this month and I would like a refund for the duplicate charge. This is the second time this has happened. My account email is jordan@example.com." } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "http://localhost:7071/api/chain/start" -Body $body -ContentType "application/json"
+$start
+
+# Poll until the orchestration finishes
+Invoke-RestMethod -Uri $start.statusQueryGetUri
+```
 
 ## Test the deployed app
 
-Upload a sample file to the `intake` container. Within about a minute, the workflow trigger fires, runs all three Azure OpenAI stages, writes the result to `output/`, and drops a message on the Service Bus queue.
-
-The Bicep file calls nested modules, and `az deployment group show` sometimes returns their merged output keys with unpredictable casing (e.g. `logiC_APP_NAME` instead of `LOGIC_APP_NAME`). JMESPath (`--query ...value`) matching is case-sensitive and will silently return an empty string if the casing doesn't match, so pull the whole outputs object and let PowerShell access it instead — PowerShell property access is case-insensitive:
+Durable Functions — the initial call only registers the run, so poll `statusQueryGetUri` for the result.
 
 ```powershell
-$outputs = az deployment group show -g rg-sequential-chain -n main --query properties.outputs -o json | ConvertFrom-Json
-$storageAccount = $outputs.STORAGE_ACCOUNT_NAME.value
-$storageAccount   # sanity check -- should not be blank
+$rg = azd env get-value AZURE_RESOURCE_GROUP
+$funcApp = azd env get-value FUNCTION_APP_NAME
+$key = az functionapp function keys list -g $rg -n $funcApp --function-name chain_start --query "default" -o tsv
+if (-not $key) { $key = az functionapp keys list -g $rg -n $funcApp --query "functionKeys.default" -o tsv }
 
-az storage blob upload `
-  --account-name $storageAccount `
-  --container-name intake `
-  --name sample-request.txt `
-  --file ./data/sample-request.txt `
-  --auth-mode login
+$body = @{ text = "Hi, I was charged twice for my subscription this month and I would like a refund for the duplicate charge. This is the second time this has happened. My account email is jordan@example.com." } | ConvertTo-Json
+$start = Invoke-RestMethod -Method Post -Uri "https://$funcApp.azurewebsites.net/api/chain/start?code=$key" -Body $body -ContentType "application/json"
+
+Invoke-RestMethod -Uri $start.statusQueryGetUri
 ```
 
-**Check the result landed in `output/`:**
+Re-run the last line every few seconds until `runtimeStatus` is `Completed` — the `output` property will contain `runId`, `extractedFields`, `draft`, and `finalText`. If it fails instead, check Application Insights:
 
 ```powershell
-az storage blob list --account-name $storageAccount --container-name output --auth-mode login -o table
-az storage blob download --account-name $storageAccount --container-name output --name <blob-name-from-above> --file ./result.txt --auth-mode login
-Get-Content .\result.txt
+az extension add -n application-insights --only-show-errors
+$aiName = az monitor app-insights component show -g $rg --query "[0].name" -o tsv
+az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | order by timestamp desc | take 5 | project timestamp, outerMessage, innermostMessage" -o table
 ```
-
-**Check the Service Bus hand-off message landed on the queue** (`chain-output`, fixed name):
-
-```powershell
-$sbNamespaceFqdn = $outputs.SERVICEBUS_NAMESPACE.value
-$sbNamespace = $sbNamespaceFqdn -replace '\.servicebus\.windows\.net$', ''
-az servicebus queue show --resource-group rg-sequential-chain --namespace-name $sbNamespace --name chain-output --query "countDetails.activeMessageCount"
-```
-
-**If nothing shows up after a minute or two**, the workflow run history in the portal (Logic App resource → Workflow → Run history) is the fastest way to see exactly which stage failed and why — every action's input/output is preserved there, no separate logging setup needed.
 
 ## Key design points
 
-- Each stage is a distinct workflow action with its own retry policy (3 attempts, exponential backoff) — a transient failure at stage two doesn't require re-running stage one.
-- Every action's input and output payload is preserved in the Logic Apps run history, visible in the portal, so debugging a chain is a matter of opening the failed run — no custom tracing to build.
-- The workflow is purely declarative (`workflow.json`); there's no application code to deploy or version beyond the workflow definition itself.
+- Each stage only ever sees the immediately preceding stage's output, never the original input or any earlier stage's result — that's what makes this a *chain* rather than a shared-context loop or a plan the model composes itself. The sequence and prompts are fixed at deploy time, not decided by the model.
+- `CallActivityAsync` is used with Durable Functions' built-in `RetryOptions` (3 attempts, exponential backoff) on the three OpenAI stages, so a transient model/API failure doesn't fail the whole run.
+- The final output is written to two places for two different consumers: a blob per run (`output/{runId}.txt`) for audit/retrieval, and a Service Bus message on `chain-output` for anything downstream that wants to react to completions in near-real-time without polling.
 
-**Repo:** Bicep IaC + Logic Apps Standard workflow calling Azure OpenAI in sequence.
+**Repo:** Bicep IaC + C# Durable Functions three-stage chain sample.

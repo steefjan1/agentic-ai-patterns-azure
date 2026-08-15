@@ -1,0 +1,95 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Dev\\agentic-ai-patterns-azure\\patterns\\06-sequential-chain\\src\\SequentialChainFunctions\\obj\\Release\\net8.0\\WorkerExtensions\\WorkerExtensions.csproj": {}
+  },
+  "projects": {
+    "C:\\Dev\\agentic-ai-patterns-azure\\patterns\\06-sequential-chain\\src\\SequentialChainFunctions\\obj\\Release\\net8.0\\WorkerExtensions\\WorkerExtensions.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Dev\\agentic-ai-patterns-azure\\patterns\\06-sequential-chain\\src\\SequentialChainFunctions\\obj\\Release\\net8.0\\WorkerExtensions\\WorkerExtensions.csproj",
+        "projectName": "Microsoft.Azure.Functions.Worker.Extensions",
+        "projectPath": "C:\\Dev\\agentic-ai-patterns-azure\\patterns\\06-sequential-chain\\src\\SequentialChainFunctions\\obj\\Release\\net8.0\\WorkerExtensions\\WorkerExtensions.csproj",
+        "packagesPath": "C:\\Users\\steef\\.nuget\\packages\\",
+        "outputPath": "C:\\Dev\\agentic-ai-patterns-azure\\patterns\\06-sequential-chain\\src\\SequentialChainFunctions\\obj\\Release\\net8.0\\WorkerExtensions\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\steef\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.Azure.WebJobs.Extensions.DurableTask": {
+              "target": "Package",
+              "version": "[2.13.6, )"
+            },
+            "Microsoft.NET.Sdk.Functions": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "Microsoft.NETCore.Targets": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Dev\\dotnet8\\sdk\\8.0.423\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

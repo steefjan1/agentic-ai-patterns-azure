@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+    <UserSecretsId>b08e2840-f150-40ee-8f9c-f6218a002502</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

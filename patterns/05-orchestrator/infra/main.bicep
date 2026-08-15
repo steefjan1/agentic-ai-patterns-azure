@@ -22,22 +22,6 @@ module observability '../../../infra/modules/observability.bicep' = {
   params: { resourceToken: resourceToken, location: location, tags: tags }
 }
 
-module openai '../../../infra/modules/openai.bicep' = {
-  name: 'openai'
-  params: {
-    resourceToken: resourceToken
-    location: location
-    tags: tags
-    deployments: [
-      { name: chatModelName, format: 'OpenAI', version: chatModelVersion, skuName: 'Standard', capacity: 10 }
-    ]
-  }
-}
-
-resource openAiAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
-  name: 'aoai-${resourceToken}'
-}
-
 resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: 'st${resourceToken}'
   location: location
@@ -47,28 +31,48 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   properties: { minimumTlsVersion: 'TLS1_2', allowBlobPublicAccess: false }
 }
 
-// ---------- Azure AI Foundry (hub + project) ----------
-resource aiFoundryHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01' = {
-  name: 'hub-${resourceToken}'
+// ---------- Azure AI Foundry (unified AIServices account + project) ----------
+// NOTE: this pattern deliberately does NOT use the shared infra/modules/openai.bicep module.
+// Azure.AI.Projects' AIProjectClient (used by FoundryAgentService.cs to drive the Persistent
+// Agents API) requires the newer unified Foundry resource model: a Microsoft.CognitiveServices
+// account with kind 'AIServices' and allowProjectManagement: true, plus a `projects` child
+// resource, reachable at https://<account>.services.ai.azure.com/api/projects/<project>. The
+// shared module deploys kind 'OpenAI' (a plain Cognitive Services OpenAI account, no project
+// support), and a separate Microsoft.MachineLearningServices/workspaces hub+project (the older,
+// now-legacy Azure AI Studio model) does not expose that endpoint shape at all -- combining them
+// is what caused the deployed app to fail DNS resolution against a hostname that was never real.
+resource aiFoundryAccount 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
+  name: 'aif-${resourceToken}'
   location: location
   tags: tags
-  kind: 'Hub'
+  kind: 'AIServices'
+  sku: { name: 'S0' }
   identity: { type: 'SystemAssigned' }
   properties: {
-    friendlyName: 'agentic-patterns-hub'
-    storageAccount: storage.id
+    customSubDomainName: 'aif-${resourceToken}'
+    publicNetworkAccess: 'Enabled'
+    allowProjectManagement: true
   }
 }
 
-resource aiFoundryProject 'Microsoft.MachineLearningServices/workspaces@2024-10-01' = {
-  name: 'proj-${resourceToken}'
+resource chatModelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = {
+  parent: aiFoundryAccount
+  name: chatModelName
+  sku: { name: 'Standard', capacity: 10 }
+  properties: {
+    model: { format: 'OpenAI', name: chatModelName, version: chatModelVersion }
+  }
+}
+
+resource aiFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
+  parent: aiFoundryAccount
+  name: 'orchestrator-sample'
   location: location
   tags: tags
-  kind: 'Project'
   identity: { type: 'SystemAssigned' }
   properties: {
-    friendlyName: 'orchestrator-sample'
-    hubResourceId: aiFoundryHub.id
+    displayName: 'orchestrator-sample'
+    description: 'Orchestrator pattern sample: central agent delegating to research/data/analytics tools.'
   }
 }
 
@@ -141,9 +145,9 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: observability.outputs.appInsightsConnectionString }
         { name: 'FUNCTIONS_EXTENSION_VERSION', value: '~4' }
         { name: 'FUNCTIONS_WORKER_RUNTIME', value: 'dotnet-isolated' }
-        { name: 'AZURE_OPENAI_ENDPOINT', value: openai.outputs.endpoint }
+        { name: 'AZURE_OPENAI_ENDPOINT', value: aiFoundryAccount.properties.endpoint }
         { name: 'AZURE_OPENAI_DEPLOYMENT', value: chatModelName }
-        { name: 'AZURE_AI_PROJECT_ENDPOINT', value: 'https://${aiFoundryProject.name}.services.ai.azure.com' }
+        { name: 'AZURE_AI_PROJECT_ENDPOINT', value: 'https://${aiFoundryAccount.name}.services.ai.azure.com/api/projects/${aiFoundryProject.name}' }
         { name: 'AZURE_SEARCH_ENDPOINT', value: 'https://${search.name}.search.windows.net' }
         { name: 'AZURE_SEARCH_INDEX', value: 'knowledge-base' }
         { name: 'SQL_CONNECTION_STRING', value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=orchestratordb;Authentication=Active Directory Managed Identity;' }
@@ -153,12 +157,24 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
 }
 
 resource openAiRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(openAiAccount.id, functionApp.id, 'Cognitive Services OpenAI User')
-  scope: openAiAccount
+  name: guid(aiFoundryAccount.id, functionApp.id, 'Cognitive Services OpenAI User')
+  scope: aiFoundryAccount
   properties: {
     principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+  }
+}
+
+// "Azure AI User" (recently renamed "Foundry User" -- same role ID) -- grants the data-plane
+// actions Persistent Agents needs: create/run agents, threads, messages against the project.
+resource aiFoundryRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(aiFoundryAccount.id, functionApp.id, 'Azure AI User')
+  scope: aiFoundryAccount
+  properties: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')
   }
 }
 
@@ -182,9 +198,9 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
   }
 }
 
-output AZURE_OPENAI_ENDPOINT string = openai.outputs.endpoint
+output AZURE_OPENAI_ENDPOINT string = aiFoundryAccount.properties.endpoint
 output AZURE_OPENAI_DEPLOYMENT string = chatModelName
-output AZURE_AI_PROJECT_ENDPOINT string = 'https://${aiFoundryProject.name}.services.ai.azure.com'
+output AZURE_AI_PROJECT_ENDPOINT string = 'https://${aiFoundryAccount.name}.services.ai.azure.com/api/projects/${aiFoundryProject.name}'
 output AZURE_SEARCH_ENDPOINT string = 'https://${search.name}.search.windows.net'
 output SQL_SERVER_FQDN string = sqlServer.properties.fullyQualifiedDomainName
 output FUNCTION_APP_NAME string = functionApp.name

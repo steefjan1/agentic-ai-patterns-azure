@@ -50,12 +50,16 @@ agentic-ai-patterns-azure/
 
 Each pattern still deploys independently — nothing here requires standing up all nine at
 once. What a single repo buys you is a consistent place to compare them and one less place for
-the shared plumbing to drift: `infra/modules/observability.bicep` and
-`infra/modules/openai.bicep` are used by all nine patterns instead of being copy-pasted (and
-silently diverging) nine times over. Everything specific to a pattern — Azure AI Search,
-Service Bus, Cosmos DB, Azure SQL, Event Grid, Logic Apps — stays in that pattern's own
-`infra/main.bicep`, so reading one pattern's infra file still shows you everything relevant to
-it without chasing definitions across the repo.
+the shared plumbing to drift: `infra/modules/observability.bicep` is used by all nine patterns,
+and `infra/modules/openai.bicep` by eight of them, instead of being copy-pasted (and silently
+diverging) across the repo. Everything specific to a pattern — Azure AI Search, Service Bus,
+Cosmos DB, Azure SQL, Event Grid, Logic Apps — stays in that pattern's own `infra/main.bicep`,
+so reading one pattern's infra file still shows you everything relevant to it without chasing
+definitions across the repo. The one exception is Orchestrator (pattern 5): it provisions its
+own Azure AI Foundry account directly rather than using the shared OpenAI module, because
+driving the Persistent Agents API requires the newer unified Foundry resource type
+(`Microsoft.CognitiveServices/accounts` with `kind: 'AIServices'` and a `projects` child
+resource) rather than a plain OpenAI account — see that pattern's `infra/main.bicep` for why.
 
 ## Prerequisites
 

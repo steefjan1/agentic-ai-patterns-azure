@@ -1,3 +1,4 @@
+using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 
@@ -12,8 +13,18 @@ public class ResearchToolService
 
     public async Task<string> ResearchAsync(string query)
     {
-        var options = new SearchOptions { Size = 3 };
-        SearchResults<SearchDocument> results = await _searchClient.SearchAsync<SearchDocument>(query, options);
+        SearchResults<SearchDocument> results;
+        try
+        {
+            var options = new SearchOptions { Size = 3 };
+            results = await _searchClient.SearchAsync<SearchDocument>(query, options);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            // Index not created yet (sample data/schema isn't seeded automatically by azd up) --
+            // treat exactly like a zero-result search rather than failing the whole orchestrator run.
+            return "No documentation found.";
+        }
 
         var passages = new List<string>();
         await foreach (var result in results.GetResultsAsync())

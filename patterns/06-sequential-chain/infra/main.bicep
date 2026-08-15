@@ -1,7 +1,7 @@
-// Sequential Chain pattern — Logic Apps Standard + Azure OpenAI + Blob + Service Bus
+// Sequential Chain pattern — Azure OpenAI + Durable Functions (fixed linear pipeline of activities)
 targetScope = 'resourceGroup'
 
-@description('Environment name used to derive resource names')
+@description('Environment name used to derive resource names (azd convention)')
 param environmentName string
 
 @description('Azure region for all resources')
@@ -49,19 +49,13 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01'
   name: 'default'
 }
 
-resource intakeContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
-  parent: blobService
-  name: 'intake'
-  properties: { publicAccess: 'None' }
-}
-
 resource outputContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
   parent: blobService
   name: 'output'
   properties: { publicAccess: 'None' }
 }
 
-// ---------- Service Bus (downstream hand-off) ----------
+// ---------- Service Bus: final-output notification queue ----------
 resource serviceBus 'Microsoft.ServiceBus/namespaces@2024-01-01' = {
   name: 'sb-${resourceToken}'
   location: location
@@ -69,41 +63,40 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2024-01-01' = {
   sku: { name: 'Standard', tier: 'Standard' }
 }
 
-resource sbQueue 'Microsoft.ServiceBus/namespaces/queues@2024-01-01' = {
+resource chainOutputQueue 'Microsoft.ServiceBus/namespaces/queues@2024-01-01' = {
   parent: serviceBus
   name: 'chain-output'
 }
 
-// ---------- Logic Apps Standard ----------
-resource logicAppPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: 'plan-${resourceToken}'
   location: location
   tags: tags
-  sku: { name: 'WS1', tier: 'WorkflowStandard' }
+  sku: { name: 'EP1', tier: 'ElasticPremium' }
   properties: { reserved: true }
 }
 
-resource logicApp 'Microsoft.Web/sites@2023-12-01' = {
-  name: 'logic-${resourceToken}'
+resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
+  name: 'func-${resourceToken}'
   location: location
-  tags: union(tags, { 'azd-service-name': 'workflow' })
-  kind: 'functionapp,workflowapp,linux'
+  tags: union(tags, { 'azd-service-name': 'api' })
+  kind: 'functionapp,linux'
   identity: { type: 'SystemAssigned' }
   properties: {
-    serverFarmId: logicAppPlan.id
+    serverFarmId: appServicePlan.id
     httpsOnly: true
     siteConfig: {
+      linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       appSettings: [
         { name: 'AzureWebJobsStorage__accountName', value: storage.name }
-        { name: 'APP_KIND', value: 'workflowApp' }
-        { name: 'FUNCTIONS_EXTENSION_VERSION', value: '~4' }
-        { name: 'FUNCTIONS_WORKER_RUNTIME', value: 'node' }
-        { name: 'WEBSITE_NODE_DEFAULT_VERSION', value: '~18' }
         { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: observability.outputs.appInsightsConnectionString }
+        { name: 'FUNCTIONS_EXTENSION_VERSION', value: '~4' }
+        { name: 'FUNCTIONS_WORKER_RUNTIME', value: 'dotnet-isolated' }
         { name: 'AZURE_OPENAI_ENDPOINT', value: openai.outputs.endpoint }
         { name: 'AZURE_OPENAI_DEPLOYMENT', value: chatModelName }
         { name: 'AZURE_STORAGE_ACCOUNT', value: storage.name }
-        { name: 'SERVICEBUS_NAMESPACE', value: '${serviceBus.name}.servicebus.windows.net' }
+        { name: 'OUTPUT_CONTAINER', value: 'output' }
+        { name: 'SERVICEBUS_FULLYQUALIFIEDNAMESPACE', value: '${serviceBus.name}.servicebus.windows.net' }
         { name: 'SERVICEBUS_QUEUE', value: 'chain-output' }
       ]
     }
@@ -111,37 +104,58 @@ resource logicApp 'Microsoft.Web/sites@2023-12-01' = {
 }
 
 resource openAiRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(openAiAccount.id, logicApp.id, 'Cognitive Services OpenAI User')
+  name: guid(openAiAccount.id, functionApp.id, 'Cognitive Services OpenAI User')
   scope: openAiAccount
   properties: {
-    principalId: logicApp.identity.principalId
+    principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
   }
 }
 
-resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(storage.id, logicApp.id, 'Storage Blob Data Contributor')
-  scope: storage
+resource sbRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(serviceBus.id, functionApp.id, 'Azure Service Bus Data Owner')
+  scope: serviceBus
   properties: {
-    principalId: logicApp.identity.principalId
+    principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '090c5cfd-751d-490a-894a-3ce6f1109419')
   }
 }
 
-resource sbRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(serviceBus.id, logicApp.id, 'Azure Service Bus Data Sender')
-  scope: serviceBus
+// Durable Functions' storage provider needs blob (task hub lease/history), queue (control queues),
+// and table (instance store) data access on top of whatever the app code touches directly.
+resource storageBlobRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storage.id, functionApp.id, 'Storage Blob Data Owner')
+  scope: storage
   properties: {
-    principalId: logicApp.identity.principalId
+    principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '69a216fc-b8fb-44d8-bc22-1f3c2cd27a39')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')
+  }
+}
+
+resource storageQueueRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storage.id, functionApp.id, 'Storage Queue Data Contributor')
+  scope: storage
+  properties: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')
+  }
+}
+
+resource storageTableRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storage.id, functionApp.id, 'Storage Table Data Contributor')
+  scope: storage
+  properties: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3')
   }
 }
 
 output AZURE_OPENAI_ENDPOINT string = openai.outputs.endpoint
 output AZURE_OPENAI_DEPLOYMENT string = chatModelName
-output STORAGE_ACCOUNT_NAME string = storage.name
-output LOGIC_APP_NAME string = logicApp.name
-output SERVICEBUS_NAMESPACE string = '${serviceBus.name}.servicebus.windows.net'
+output SERVICEBUS_FULLYQUALIFIEDNAMESPACE string = '${serviceBus.name}.servicebus.windows.net'
+output FUNCTION_APP_NAME string = functionApp.name

@@ -25,7 +25,7 @@ and one pattern that coordinates multiple agents with *no* central point at all 
 | 3 | [Reflection](./03-reflection.md) | Draft → self-review → revise | Quality-critical output: code, compliance text | Azure OpenAI (dual deployment), Durable Functions, Blob Storage |
 | 4 | [Planning](./04-planning.md) | Decompose goal → execute steps → track progress | Multi-step workflows, SOP automation | Azure OpenAI, Durable Functions, Table Storage, Logic Apps |
 | 5 | [Orchestrator](./05-orchestrator.md) | Coordinator delegates to specialist tools | Enterprise platforms, domain specialization | Azure AI Foundry Agent Service, Azure AI Search, Azure SQL |
-| 6 | [Sequential Chain](./06-sequential-chain.md) | Fixed pipeline, stage → stage → stage | ETL, content pipelines, structured processing | Logic Apps Standard, Azure OpenAI, Service Bus |
+| 6 | [Sequential Chain](./06-sequential-chain.md) | Fixed pipeline, stage → stage → stage | ETL, content pipelines, structured processing | Durable Functions, Azure OpenAI, Service Bus |
 | 7 | [Parallel Fan-out/Fan-in](./07-parallel-fanout-fanin.md) | Branches run concurrently, then join | Independent sub-tasks at scale, batch summarization | Durable Functions (`Task.WhenAll`), Azure OpenAI |
 | 8 | [Hierarchical](./08-hierarchical.md) | Manager supervises semi-autonomous domain experts | Large orgs, multi-domain systems, governance | Azure OpenAI, Service Bus (topic + sessions), Cosmos DB, SQL, AI Search |
 | 9 | [P2P Mesh](./09-p2p-mesh.md) | Agents react to each other's events, no coordinator | Decentralized, resilient multi-agent ecosystems | Event Grid, Azure Functions, Cosmos DB |
@@ -39,8 +39,11 @@ its own self-review (Blob Storage). None of these need a second compute resource
 
 Patterns 5-8 all introduce a second tier — one or more specialist agents behind the primary one
 — but they differ in exactly how that tier is reached. Orchestrator's specialists are close to
-stateless tools, reached in-process or over HTTP. Sequential Chain replaces hand-written
-orchestration with a declarative Logic Apps workflow because the stage order never changes.
+stateless tools, reached in-process or over HTTP. Sequential Chain doesn't have specialist agents
+at all in the same sense — it's a fixed sequence of stages, which is why a Durable Functions
+orchestrator calling activities in a straight line (no fan-out, no branching) is enough; a
+declarative low-code workflow engine like Logic Apps Standard is a reasonable alternative for the
+same fixed shape, though it turned out less reliable to stand up for this particular sample.
 Parallel Fan-out/Fan-in is the one pattern whose name matches an actual Azure Durable Functions
 primitive (`Task.WhenAll`) almost exactly. Hierarchical is the odd one out in this group: its
 sub-agents are message-driven over Service Bus rather than directly invoked, because they're
@@ -65,11 +68,13 @@ agentic-ai-patterns-azure/
 ```
 
 Every pattern folder is independently deployable — `cd patterns/03-reflection && azd up`
-provisions only that pattern's resources. The two pieces of infrastructure duplicated across
-all nine (Log Analytics + Application Insights, and the Azure OpenAI account + model
-deployments) are factored into `infra/modules/` and referenced from each pattern's
-`main.bicep`; everything pattern-specific (Azure AI Search, Service Bus, Cosmos DB, Event Grid,
-and so on) stays local to that pattern's own Bicep file.
+provisions only that pattern's resources. Two pieces of infrastructure that would otherwise be
+duplicated are factored into `infra/modules/` and referenced from each pattern's `main.bicep`:
+Log Analytics + Application Insights (all nine patterns) and the Azure OpenAI account + model
+deployments (eight of nine — Orchestrator provisions its own unified AI Foundry account instead,
+since the Persistent Agents API it uses needs that specific resource type). Everything
+pattern-specific (Azure AI Search, Service Bus, Cosmos DB, Event Grid, and so on) stays local to
+that pattern's own Bicep file.
 
 ## Where to start
 

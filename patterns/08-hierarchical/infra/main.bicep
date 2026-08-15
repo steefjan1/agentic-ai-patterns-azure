@@ -67,7 +67,7 @@ resource financeSub 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2024-0
 resource financeSubFilter 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2024-01-01' = {
   parent: financeSub
   name: 'FinanceOnly'
-  properties: { filterType: 'SqlFilter', sqlFilter: { sqlExpression: "Domain = 'Finance'" } }
+  properties: { filterType: 'SqlFilter', sqlFilter: { sqlExpression: 'Domain = \'Finance\'' } }
 }
 
 resource opsSub 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2024-01-01' = {
@@ -77,7 +77,7 @@ resource opsSub 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2024-01-01
 resource opsSubFilter 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2024-01-01' = {
   parent: opsSub
   name: 'OpsOnly'
-  properties: { filterType: 'SqlFilter', sqlFilter: { sqlExpression: "Domain = 'Ops'" } }
+  properties: { filterType: 'SqlFilter', sqlFilter: { sqlExpression: 'Domain = \'Ops\'' } }
 }
 
 resource itSub 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2024-01-01' = {
@@ -87,7 +87,7 @@ resource itSub 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2024-01-01'
 resource itSubFilter 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2024-01-01' = {
   parent: itSub
   name: 'ITOnly'
-  properties: { filterType: 'SqlFilter', sqlFilter: { sqlExpression: "Domain = 'IT'" } }
+  properties: { filterType: 'SqlFilter', sqlFilter: { sqlExpression: 'Domain = \'IT\'' } }
 }
 
 resource domainRepliesQueue 'Microsoft.ServiceBus/namespaces/queues@2024-01-01' = {

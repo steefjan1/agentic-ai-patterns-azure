@@ -73,6 +73,25 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-08-15' = {
   }
 }
 
+// Database/container the app's CorrelationStateService expects to already exist (mesh/correlations,
+// partitioned on /id since the app always sets the item's id equal to the partition key value).
+resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-08-15' = {
+  parent: cosmos
+  name: 'mesh'
+  properties: { resource: { id: 'mesh' } }
+}
+
+resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-08-15' = {
+  parent: cosmosDatabase
+  name: 'correlations'
+  properties: {
+    resource: {
+      id: 'correlations'
+      partitionKey: { paths: ['/id'], kind: 'Hash' }
+    }
+  }
+}
+
 // ---------- Event Grid custom topic (the mesh's connective tissue) ----------
 resource eventGridTopic 'Microsoft.EventGrid/topics@2024-06-01-preview' = {
   name: 'evgt-${resourceToken}'
@@ -153,6 +172,18 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
     principalId: functionApp.identity.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')
+  }
+}
+
+// Cosmos DB uses its own native RBAC system, separate from Microsoft.Authorization role assignments.
+// Without this, the function app's managed identity gets 403 Forbidden on every data-plane call.
+resource cosmosDataContributorRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-08-15' = {
+  parent: cosmos
+  name: guid(cosmos.id, functionApp.id, 'CosmosBuiltInDataContributor')
+  properties: {
+    roleDefinitionId: '${cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002'
+    principalId: functionApp.identity.principalId
+    scope: cosmos.id
   }
 }
 

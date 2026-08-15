@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+    <UserSecretsId>6682fd22-fc1e-4d23-a5b0-7efd6779143d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +16,9 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.4.0" />
-    <PackageReference Include="Azure.AI.Projects" Version="1.0.0-beta.2" />
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Azure.AI.Projects" Version="2.0.1" />
+    <PackageReference Include="Azure.AI.Agents.Persistent" Version="1.2.0-beta.9" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Azure.Search.Documents" Version="11.6.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
   </ItemGroup>

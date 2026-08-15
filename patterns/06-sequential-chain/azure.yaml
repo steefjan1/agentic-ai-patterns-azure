@@ -1,0 +1,8 @@
+name: agentic-pattern-sequential-chain
+metadata:
+  template: agentic-pattern-sequential-chain@0.1.0
+services:
+  api:
+    project: ./src/SequentialChainFunctions
+    language: csharp
+    host: function

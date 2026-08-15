@@ -1,0 +1,141 @@
+[
+  {
+    "name": "ExtractFields",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainActivities.ExtractFields",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "inputText",
+        "direction": "In",
+        "type": "activityTrigger",
+        "dataType": "String",
+        "properties": {}
+      }
+    ]
+  },
+  {
+    "name": "DraftResponse",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainActivities.DraftResponse",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "extractedFields",
+        "direction": "In",
+        "type": "activityTrigger",
+        "dataType": "String",
+        "properties": {}
+      }
+    ]
+  },
+  {
+    "name": "ValidateDraft",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainActivities.ValidateDraft",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "draft",
+        "direction": "In",
+        "type": "activityTrigger",
+        "dataType": "String",
+        "properties": {}
+      }
+    ]
+  },
+  {
+    "name": "WriteOutputBlob",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainActivities.WriteOutputBlob",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "input",
+        "direction": "In",
+        "type": "activityTrigger",
+        "properties": {}
+      }
+    ]
+  },
+  {
+    "name": "SendToServiceBus",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainActivities.SendToServiceBus",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "finalText",
+        "direction": "In",
+        "type": "activityTrigger",
+        "dataType": "String",
+        "properties": {}
+      }
+    ]
+  },
+  {
+    "name": "RunChain",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainOrchestrator.RunChain",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "context",
+        "direction": "In",
+        "type": "orchestrationTrigger",
+        "properties": {}
+      }
+    ]
+  },
+  {
+    "name": "chain_start",
+    "scriptFile": "SequentialChainFunctions.dll",
+    "entryPoint": "SequentialChainFunctions.Functions.ChainOrchestrator.Start",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "post"
+        ],
+        "route": "chain/start",
+        "properties": {}
+      },
+      {
+        "name": "client",
+        "direction": "In",
+        "type": "durableClient",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  }
+]

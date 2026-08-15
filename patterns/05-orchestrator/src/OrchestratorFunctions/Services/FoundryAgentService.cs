@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Azure.AI.Projects;
+using Azure.AI.Agents.Persistent;
 
 namespace OrchestratorFunctions.Services;
 
@@ -8,9 +9,10 @@ namespace OrchestratorFunctions.Services;
 /// posts the user message, and resolves any requested tool calls against the local specialist
 /// services before letting the run complete.
 ///
-/// NOTE: Azure.AI.Projects is evolving quickly; verify method names against the SDK version
-/// pinned in the .csproj if you bump it. The shape of the agent/thread/run lifecycle below
-/// matches the Persistent Agents protocol documented for Azure AI Foundry Agent Service.
+/// NOTE: Azure.AI.Projects / Azure.AI.Agents.Persistent are evolving quickly; verify method
+/// names against the SDK version pinned in the .csproj if you bump it. This targets
+/// Azure.AI.Projects 2.0.1 + Azure.AI.Agents.Persistent 1.2.0-beta.9 -- the "Classic Agents"
+/// (PersistentAgentsClient) surface reached via AIProjectClient.GetPersistentAgentsClient().
 /// </summary>
 public class FoundryAgentService
 {
@@ -41,43 +43,60 @@ public class FoundryAgentService
         var agents = _projectClient.GetPersistentAgentsClient();
         var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT") ?? "gpt-4.1";
 
-        _agentId ??= (await agents.CreateAgentAsync(
-            model: deployment,
-            name: "orchestrator-agent",
-            instructions: OrchestratorInstructions,
-            tools: ToolDefinitions())).Value.Id;
+        if (_agentId is null)
+        {
+            var createdAgent = (await agents.Administration.CreateAgentAsync(
+                model: deployment,
+                name: "orchestrator-agent",
+                instructions: OrchestratorInstructions,
+                tools: ToolDefinitions())).Value;
+            _agentId = createdAgent.Id;
+        }
 
-        var thread = await agents.CreateThreadAsync();
-        await agents.CreateMessageAsync(thread.Value.Id, "user", userMessage);
+        var thread = (await agents.Threads.CreateThreadAsync()).Value;
+        await agents.Messages.CreateMessageAsync(thread.Id, MessageRole.User, userMessage);
 
-        var run = await agents.CreateRunAsync(thread.Value.Id, _agentId);
+        var run = (await agents.Runs.CreateRunAsync(thread.Id, _agentId)).Value;
         var toolsInvoked = new List<string>();
 
-        while (run.Value.Status is "queued" or "in_progress" or "requires_action")
+        while (run.Status == RunStatus.Queued || run.Status == RunStatus.InProgress || run.Status == RunStatus.RequiresAction)
         {
-            if (run.Value.Status == "requires_action")
+            if (run.Status == RunStatus.RequiresAction && run.RequiredAction is SubmitToolOutputsAction submitToolOutputsAction)
             {
                 var toolOutputs = new List<ToolOutput>();
 
-                foreach (var toolCall in run.Value.RequiredAction.SubmitToolOutputs.ToolCalls)
+                foreach (var toolCall in submitToolOutputsAction.ToolCalls)
                 {
-                    toolsInvoked.Add(toolCall.Function.Name);
-                    var output = await ResolveToolCallAsync(toolCall.Function.Name, toolCall.Function.Arguments);
-                    toolOutputs.Add(new ToolOutput(toolCall.Id, output));
+                    if (toolCall is RequiredFunctionToolCall functionToolCall)
+                    {
+                        toolsInvoked.Add(functionToolCall.Name);
+                        var output = await ResolveToolCallAsync(functionToolCall.Name, functionToolCall.Arguments);
+                        toolOutputs.Add(new ToolOutput(toolCall, output));
+                    }
                 }
 
-                run = await agents.SubmitToolOutputsToRunAsync(thread.Value.Id, run.Value.Id, toolOutputs);
+                run = (await agents.Runs.SubmitToolOutputsToRunAsync(run, toolOutputs, toolApprovals: null)).Value;
             }
             else
             {
                 await Task.Delay(500);
-                run = await agents.GetRunAsync(thread.Value.Id, run.Value.Id);
+                run = (await agents.Runs.GetRunAsync(thread.Id, run.Id)).Value;
             }
         }
 
-        var messages = await agents.GetMessagesAsync(thread.Value.Id);
-        var lastAssistantMessage = messages.Value.Data.First(m => m.Role == "assistant");
-        var answer = lastAssistantMessage.Content.OfType<MessageTextContent>().First().Text.Value;
+        var messages = agents.Messages.GetMessagesAsync(threadId: thread.Id, order: ListSortOrder.Descending);
+        PersistentThreadMessage? lastAgentMessage = null;
+        await foreach (var candidate in messages)
+        {
+            if (candidate.Role == MessageRole.Agent)
+            {
+                lastAgentMessage = candidate;
+                break;
+            }
+        }
+
+        var answer = lastAgentMessage?.ContentItems.OfType<MessageTextContent>().FirstOrDefault()?.Text
+            ?? "(the agent did not return a text answer)";
 
         return (answer, toolsInvoked);
     }

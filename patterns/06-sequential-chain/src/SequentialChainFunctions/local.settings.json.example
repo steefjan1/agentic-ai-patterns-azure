@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AZURE_OPENAI_ENDPOINT": "https://<your-aoai-resource>.openai.azure.com/",
+    "AZURE_OPENAI_DEPLOYMENT": "gpt-4.1",
+    "AZURE_STORAGE_ACCOUNT": "<your-storage-account-name>",
+    "OUTPUT_CONTAINER": "output",
+    "SERVICEBUS_FULLYQUALIFIEDNAMESPACE": "<your-servicebus-namespace>.servicebus.windows.net",
+    "SERVICEBUS_QUEUE": "chain-output"
+  }
+}

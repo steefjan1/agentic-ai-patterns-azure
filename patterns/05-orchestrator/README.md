@@ -8,7 +8,7 @@ A central agent, hosted on Azure AI Foundry Agent Service, delegates to speciali
 
 | Component | Azure Service |
 |---|---|
-| Orchestrator agent | Azure AI Foundry Agent Service (Persistent Agents) — owns the thread, decides which specialist tool(s) to call, synthesizes the final answer |
+| Orchestrator agent | Azure AI Foundry Agent Service (Persistent Agents), hosted on a unified AI Foundry account — owns the thread, decides which specialist tool(s) to call, synthesizes the final answer |
 | Specialist: Research | Azure Functions + Azure AI Search (grounds answers in a knowledge base) |
 | Specialist: Data | Azure Functions + Azure SQL Database (structured lookups) |
 | Specialist: Analytics | Azure Functions (computes summary metrics) |
@@ -16,6 +16,8 @@ A central agent, hosted on Azure AI Foundry Agent Service, delegates to speciali
 | Telemetry | Application Insights |
 
 > **Note on topology:** the post describes each specialist as its own Function App behind API Management for independent scaling and governance. This sample runs all three specialists as functions inside one Function App to keep the reference deployable in a single `azd up`; `infra/main.bicep` is commented where you'd split them out for a production topology.
+
+> **Note on the Foundry resource model:** the orchestrator agent is driven by `Azure.AI.Projects.AIProjectClient`, which requires the newer unified Foundry resource type — a `Microsoft.CognitiveServices/accounts` account with `kind: 'AIServices'` and `allowProjectManagement: true`, plus a `projects` child resource, reachable at `https://<account>.services.ai.azure.com/api/projects/<project>`. This is why this pattern provisions its own AI Foundry account directly in `infra/main.bicep` instead of using the repo's shared `infra/modules/openai.bicep` module (which deploys a plain `kind: 'OpenAI'` account with no project support) — the two resource types aren't interchangeable for this SDK.
 
 ```
 Client ──HTTP──▶ OrchestratorFunction
@@ -65,7 +67,7 @@ azd auth login
 azd up
 ```
 
-Provisions an Azure AI Foundry project + `gpt-4.1` model deployment, Azure AI Search (Basic), Azure SQL Database (Basic, sample schema), a Function App hosting all three specialist tools plus the orchestrator entry point, and Application Insights.
+Provisions a unified Azure AI Foundry account (with an Agent Service project and a `gpt-4.1` model deployment on it), Azure AI Search (Basic), Azure SQL Database (Basic, sample schema), a Function App hosting all three specialist tools plus the orchestrator entry point, and Application Insights.
 
 ## Run locally
 
@@ -117,5 +119,6 @@ az monitor app-insights query -g $rg -a $aiName --analytics-query "exceptions | 
 - The orchestrator never implements domain logic itself — it only holds the routing/aggregation prompt and the tool definitions. Each specialist owns its own data access and its own narrower system prompt.
 - Tool resolution follows the Foundry Agent Service `requires_action` protocol: the run pauses, `FoundryAgentService` resolves each requested tool call against the matching local service, and submits the results back to the run before polling for completion.
 - Because specialists are just services behind function-tool definitions, splitting any of them into their own Function App later is a matter of moving the class and pointing the tool definition at an HTTP action instead of an in-process call — the agent-side contract doesn't change.
+- Both `ResearchToolService` and `DataToolService` catch the "not seeded yet" failure mode for their own backing store (a missing Azure AI Search index, a missing SQL table) and return a plain "no results" string rather than throwing — so an unseeded environment degrades gracefully into a less useful answer instead of a 500 on the whole orchestrator run.
 
 **Repo:** Bicep IaC + Azure AI Foundry orchestrator agent + three specialist tool implementations.
